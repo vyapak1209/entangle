@@ -23,9 +23,18 @@ export const {
   list: listTodos,
 } = generate('todo', todoSchema.parse);
 
+export async function allTodos(tx: ReadTransaction) {
+  try {
+    const allTodos = (await tx.scan({ prefix: 'todo/' }).values().toArray()) as Todo[];
+    return allTodos;
+  } catch (err) {
+    console.log('err in todosByList', err)
+  }
+}
+
 export async function todosByList(tx: ReadTransaction, listID: string) {
   try {
-    const allTodos = (await tx.scan().values().toArray()) as Todo[];
+    const allTodos = (await tx.scan({ prefix: 'todo/' }).values().toArray()) as Todo[];
     return allTodos.filter(todo => todo.listID === listID);
   } catch (err) {
     console.log('err in todosByList', err)

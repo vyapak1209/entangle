@@ -1,5 +1,7 @@
+import TaskCount from '@/components/page/home/TaskCount';
 import { ListSection } from '@/components/page/list/ListSection';
 import { Colors } from '@/constants/Colors';
+import { getDayOfWeek, getFormattedDate } from '@/utils/date';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, Platform, StatusBar } from 'react-native';
 
 const HomeScreen = () => {
@@ -25,20 +27,13 @@ const HomeScreen = () => {
             <View style={styles.statusDiv}>
                 <View>
                     <Text style={styles.dayIndicator}>
-                        Today's Tuesday
+                        Today's {getDayOfWeek(new Date())}
                     </Text>
                     <Text style={styles.dateIndicator}>
-                        July 12, 2024
+                        {getFormattedDate(new Date())}
                     </Text>
                 </View>
-                <View style={styles.statDiv}>
-                    <Text style={styles.statPercentage}>
-                        75% Done
-                    </Text>
-                    <Text style={styles.statLabel}>
-                        Completed Tasks
-                    </Text>
-                </View>
+                <TaskCount />
             </View>
         )
     }
