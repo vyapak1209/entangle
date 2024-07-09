@@ -58,3 +58,29 @@ export const fetchUserSpaceFromServer = async (username: string): Promise<ApiRes
         }
     );
 }
+
+
+export const fetchListFromServer = async (userId: string) => {
+
+    // try {
+    //     authToken = await AsyncStorage.getItem("authToken");
+
+    //     if (!authToken) {
+    //         throw new Error('There was a problem in fetching the Auth Token')
+    //     }
+
+    // } catch (err) {
+    //     return Promise.reject(err);
+    // }
+
+    return api.post(
+        '/api/entangle/fetchLists',
+        { userId },
+        {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "authToken"
+            }
+        }
+    );
+}

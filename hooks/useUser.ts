@@ -51,7 +51,7 @@ const reducer = (state: UserState, action: { type: 'FETCHING' | 'FETCHED' | 'ERR
   }
 };
 
-export const useUser = (username: string | null) => {
+export const useUser = (username: string | null, hardRefresh = false) => {
   const [state, dispatch] = useReducer(reducer, null, initialiseState);
   console.log('here', state)
 
@@ -65,14 +65,27 @@ export const useUser = (username: string | null) => {
   }, [username]);
 
   const checkOrCreateUserSpace = async (username: string) => {
-    console.log('here1', username)
+
+    let userData = await AsyncStorage.getItem(username);
+    let id = '';
+    let spaceID = '';
+
     try {
       dispatch({ type: 'FETCHING' });
-      let userData = await AsyncStorage.getItem(username);
-      let id = '';
-      let spaceID = '';
 
-      console.log('in async', userData)
+      if (hardRefresh) {
+        console.log('here')
+        const serverData = await fetchOrCreateUserSpaceOnServer(username);
+        
+        id = serverData.id;
+        spaceID = serverData.spaceID;
+        await AsyncStorage.setItem(username, JSON.stringify({ id, spaceID }));
+
+        dispatch({ type: 'FETCHED', payload: { username, id, spaceID } });
+
+        return;
+      }
+
       if (JSON.parse(userData ?? "{}")?.id) {
         const parsedData = JSON.parse(userData ?? "{}");
         id = parsedData.id;
@@ -81,8 +94,6 @@ export const useUser = (username: string | null) => {
         dispatch({ type: 'FETCHED', payload: { username, id, spaceID } });
       } else {
         const serverData = await fetchOrCreateUserSpaceOnServer(username);
-
-        console.log('on server', serverData);
         
         id = serverData.id;
         spaceID = serverData.spaceID;
