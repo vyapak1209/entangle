@@ -3,12 +3,17 @@ import React from 'react'
 import { useReplicache } from '@/context/ReplicacheContext'
 import { useTodoCount } from '@/store/todo-count';
 import { Colors } from '@/constants/Colors';
+import { allTodos } from '@/entities';
+import { useSubscribe } from '@/hooks/useSubscribe';
 
 const TaskCount = () => {
 
     const { replicache } = useReplicache();
 
-    const { completedCount, totalCount } = useTodoCount(replicache)
+    const todos = useSubscribe(replicache, allTodos, { default: [] });
+
+    const totalCount = todos.length;
+    const completedCount = todos.filter(todo => todo.status === "DONE").length;
 
     return (
         <View style={styles.statDiv}>

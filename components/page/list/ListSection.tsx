@@ -14,6 +14,7 @@ import { generateUUID } from "@/utils/random-id";
 import ListItem from "./ListItem";
 import { useReplicache } from "@/context/ReplicacheContext";
 import { Colors } from "@/constants/Colors";
+import ListItemAnimation from "@/components/custom/ListItemAnimation";
 
 type ListSectionProps = {
     userID: string;
@@ -22,12 +23,13 @@ type ListSectionProps = {
 export function ListSection({ userID }: ListSectionProps) {
 
     const [listName, setListName] = useState('');
+    const [itemToAnimate, setItemToAnimate] = useState<string | null>(null);
     const [showListNamePopup, setShowListNamePopup] = useState(false);
 
     const { replicache } = useReplicache();
 
     // Listen for pokes related to the docs this user has access to.
-    useEventSourcePoke(`http://192.168.0.203:8080/api/replicache/poke?channel=user/${userID}`, replicache);
+    useEventSourcePoke(`http://192.168.0.101:8080/api/replicache/poke?channel=user/${userID}`, replicache);
 
     const { lists, listAdaptors } = useLists(replicache);
     lists?.sort((a, b) => a?.title?.localeCompare(b?.title));
@@ -47,7 +49,9 @@ export function ListSection({ userID }: ListSectionProps) {
                 title: listName,
             });
 
+            setItemToAnimate(id);
             handleListNamePopup();
+            setListName('');
         } catch (err) {
             console.log('error while creating', err)
         }
@@ -74,11 +78,15 @@ export function ListSection({ userID }: ListSectionProps) {
                 {
                     lists?.length > 0 && lists.map((item, index) => {
                         return (
-                            <ListItem
+                            <ListItemAnimation
                                 key={item.id + item.ownerID + index}
-                                list={item}
-                                deleteList={handleDeleteList}
-                            />
+                                isVisible={item.id === itemToAnimate}
+                            >
+                                <ListItem
+                                    list={item}
+                                    deleteList={handleDeleteList}
+                                />
+                            </ListItemAnimation>
                         )
                     })
                 }
@@ -91,7 +99,7 @@ export function ListSection({ userID }: ListSectionProps) {
         return (
             <View style={styles.listSectionHeader}>
                 <Text style={styles.allListsHeading}>
-                    All Lists
+                    All Lists ({lists.length})
                 </Text>
                 <Pressable
                     onPress={handleListNamePopup}
@@ -119,12 +127,6 @@ export function ListSection({ userID }: ListSectionProps) {
                     }}
                 >
                     <View style={styles.addListPopup}>
-                        <Text
-                            style={styles.addListPopupHeading}
-                        >
-                            Add a list
-                        </Text>
-
                         <View>
                             <TextInput
                                 editable
@@ -132,7 +134,7 @@ export function ListSection({ userID }: ListSectionProps) {
                                 onChangeText={setListName}
                                 onSubmitEditing={handleNewList}
                                 style={styles.listNameInput}
-                                placeholder="List name"
+                                placeholder="Create a list"
                                 placeholderTextColor={Colors.light.placeholder}
                             />
                         </View>
@@ -191,7 +193,7 @@ const styles = StyleSheet.create({
     },
     allListsHeading: {
         fontSize: 30,
-        fontFamily: 'Rubik600',
+        fontFamily: 'Rubik500',
     },
     addListIcon: {
         backgroundColor: Colors.light.subtleBackground,
@@ -224,8 +226,7 @@ const styles = StyleSheet.create({
         marginTop: 'auto'
     },
     listNameInput: {
-        marginTop: 20,
-        fontSize: 45,
+        fontSize: 30,
         fontFamily: 'Rubik500',
         color: Colors.light.text
     },

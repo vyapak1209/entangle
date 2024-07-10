@@ -24,7 +24,7 @@ export const useListStore =  create<ListState>((set, get) => ({
     initialiseReplicacheSubscription: (replicache: Replicache<M>) => {
         replicache.subscribe(async (tx) => {
             try {
-                const lists = (await tx.scan().values().toArray()) as List[];
+                const lists = (await tx.scan({ prefix: 'list/' }).values().toArray()) as List[];
                 return lists;
             } catch (err) {
                 console.log('bkl error', err);

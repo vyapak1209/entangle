@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import Modal from "react-native-modal";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import EventSource from "react-native-sse";
 
@@ -13,6 +12,7 @@ import { useReplicache } from "@/context/ReplicacheContext";
 import TodoItem from "./TodoItem";
 import { Colors } from "@/constants/Colors";
 import { Entypo } from "@expo/vector-icons";
+import TodoModal from "./TodoModal";
 
 type TodoSectionProps = {
     listID: string;
@@ -21,7 +21,7 @@ type TodoSectionProps = {
 const initialTodoState = {
     title: '',
     listID: '',
-    id: generateUUID(16),
+    id: '',
     description: '',
     status: 'TODO',
     priority: 'LOW'
@@ -33,45 +33,24 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
     const { todos, todoAdaptors } = useTodos(replicache, listID);
     todos?.sort((t1: Todo, t2: Todo) => t1?.sort - t2?.sort);
 
-    useEventSourcePoke(`http://192.168.0.203:8080/api/replicache/poke?channel=list/${listID}`, replicache);
+    const completedTodo = todos.filter(item => item.status === "DONE").length;
+    const totalTodo = todos.length
 
-    const [showTodoPopup, setShowTodoPopup] = useState(false)
-    const [editTodo, setEditTodo] = useState<TodoUpdate>({
-        ...initialTodoState,
-        listID
-    } as Todo);
+    useEventSourcePoke(`http://192.168.0.101:8080/api/replicache/poke?channel=list/${listID}`, replicache);
 
+    const [showTodoPopup, setShowTodoPopup] = useState(false);
 
     const handleTodoPopup = () => {
         setShowTodoPopup(prev => !prev);
     }
 
-    const handleTodoTitleInput = (text: string) => {
-        setEditTodo(prev => {
-            return {
-                ...prev,
-                title: text
-            }
-        })
-    }
-
-    const handleTodoDescriptionInput = (text: string) => {
-        setEditTodo(prev => {
-            return {
-                ...prev,
-                description: text
-            }
-        })
-    }
-
-    const handleInputSubmit = (key: "title" | "description") => {
-        console.log(key)
-    }
-
-    const handleSubmit = async () => {
+    const handleSubmit = async (todo: Todo) => {
         try {
-            await todoAdaptors.createTodo(editTodo as Todo);
-
+            await todoAdaptors.createTodo({
+                ...todo,
+                listID,
+                id: generateUUID(16)
+            } as Todo);
 
             handleTodoPopup();
         } catch (err) {
@@ -101,7 +80,16 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
             <View>
                 <View style={styles.todoSectionHeader}>
                     <Text style={styles.todoCompletedHeading}>
-                        4/12 Completed
+                        {
+                            totalTodo > 0 ?
+                                <>
+                                    {completedTodo} / {totalTodo} Completed
+                                </> :
+                                <>
+                                    No Tasks
+                                </>
+                        }
+
                     </Text>
                     <Pressable
                         onPress={handleTodoPopup}
@@ -118,55 +106,14 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
 
     const addTodoModalUI = () => {
         return (
-            <View>
-                <Modal
-                    isVisible={showTodoPopup}
-                    avoidKeyboard={true}
-                    onBackButtonPress={handleTodoPopup}
-                    onBackdropPress={handleTodoPopup}
-                    useNativeDriver
-                    style={{
-                        margin: 0,
-                    }}
-                >
-                    <View style={styles.addTodoPopup}>
-                        <View>
-                            <TextInput
-                                editable
-                                value={editTodo.title}
-                                onChangeText={handleTodoTitleInput}
-                                onSubmitEditing={() => handleInputSubmit("title")}
-                                style={styles.todoTitleInput}
-                                placeholder="Create a todo"
-                                placeholderTextColor={Colors.light.placeholder}
-                            />
-                            <TextInput
-                                editable
-                                value={editTodo.description}
-                                onChangeText={handleTodoDescriptionInput}
-                                onSubmitEditing={() => handleInputSubmit("description")}
-                                style={styles.todoDescInput}
-                                placeholder="Add description"
-                                placeholderTextColor={Colors.light.placeholder}
-                            />
-                        </View>
-                        <View style={styles.addTodobuttonContainer}>
-                            <TouchableOpacity
-                                onPress={handleSubmit}
-                                disabled={editTodo.title?.length ? editTodo.title?.length < 3 : true}
-                            >
-                                <View
-                                    style={styles.addTodoButton}
-                                >
-                                    <Text style={styles.addTodoButtonText}>
-                                        ADD
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </Modal>
-            </View>
+            <TodoModal 
+                isVisible={showTodoPopup}
+                closeTodoPopup={handleTodoPopup}
+                listID={listID}
+                context="CREATE"
+                onSubmit={handleSubmit}
+                clearOnSubmit
+            />
         )
     }
 
@@ -183,7 +130,6 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
                             <TodoItem
                                 key={`${item.id}`}
                                 todo={item}
-                                deleteTodo={handleTodoDelete}
                             />
                         )
                     })
@@ -230,7 +176,6 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontFamily: 'Rubik400',
         color: Colors.light.text,
-        marginTop: 20
     },
     addTodoIcon: {
         backgroundColor: Colors.light.subtleBackground,
@@ -283,7 +228,15 @@ const styles = StyleSheet.create({
     addTodobuttonContainer: {
         width: '100%',
         display: 'flex',
+        flexDirection: 'row',
         alignItems: 'flex-end',
+        justifyContent: 'space-between',
         marginTop: 20
+    },
+    todoForm: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        gap: 20
     }
 });

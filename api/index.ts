@@ -3,7 +3,7 @@ import { ApiErrorResponse, ApiResponse, create } from 'apisauce'
 
 // define the api
 const api = create({
-    baseURL: 'http://192.168.0.203:3000'
+    baseURL: 'http://192.168.0.101:3000'
 })
 
 export const createSpaceOnServer = async (spaceID?: string | null): Promise<ApiResponse<{ spaceID: string }>> => {

@@ -3,9 +3,12 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import Entypo from '@expo/vector-icons/Entypo';
 import Octicons from '@expo/vector-icons/Octicons';
 import { AntDesign } from '@expo/vector-icons';
-import { List } from "@/entities";
+import { List, todosByList } from "@/entities";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
+import { useReplicache } from "@/context/ReplicacheContext";
+import { useSubscribe } from "@/hooks/useSubscribe";
+import { getRandomColor } from "@/utils/random-color";
 
 
 type Props = {
@@ -13,13 +16,16 @@ type Props = {
     deleteList: (listID: string) => void
 }
 
-const COLORS = [Colors.light.purple, Colors.light.teal, Colors.light.yellow];
-
 const ListItem = ({ list, deleteList }: Props) => {
 
-    const randomIndex = Math.floor(Math.random() * (COLORS.length));
+    const { replicache } = useReplicache();
 
-    const colorIndexRef = useRef(randomIndex);
+    const todos = useSubscribe(replicache, async (tx) => todosByList(tx, list.id), { default: [] });
+
+    const totalCount = todos.length;
+    const completedCount = todos.filter(todo => todo.status === "DONE").length;
+
+    const colorRef = useRef(getRandomColor());
 
     const [showListOptions, setShowListOptions] = useState(false);
 
@@ -38,8 +44,12 @@ const ListItem = ({ list, deleteList }: Props) => {
     }
 
     return (
-        <Pressable onPress={handleRouteToList}>
-            <View style={{ ...styles.listCard, backgroundColor: COLORS[colorIndexRef.current] }}>
+        <View style={{ overflow: 'hidden' }}>
+            <Pressable
+                onPress={handleRouteToList}
+                android_ripple={{ color: Colors.light.subtleBackground, foreground: true }}
+                style={{ ...styles.listCard, backgroundColor: colorRef.current, overflow: 'hidden' }}
+            >
                 <View style={styles.listCardHeader}>
                     <View style={styles.listShareIcon}>
                         <AntDesign name="adduser" size={24} color={Colors.light.text} />
@@ -70,13 +80,13 @@ const ListItem = ({ list, deleteList }: Props) => {
                     </View>
                 </View>
                 <Text style={styles.listActiveTask}>
-                    2 Active Tasks
+                    {(totalCount - completedCount) === 0 ? 'No' : (totalCount - completedCount)} Active Tasks
                 </Text>
                 <Text style={styles.listTitle}>
                     {list.title}
                 </Text>
-            </View>
-        </Pressable>
+            </Pressable>
+        </View>
     );
 };
 

@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import {generate, Update} from '@rocicorp/rails';
+import { ReadTransaction } from 'replicache';
 
 export const listSchema = z.object({
   id: z.string(),
@@ -16,3 +17,12 @@ export const {
   get: getList,
   delete: deleteList,
 } = generate('list', listSchema.parse);
+
+export async function allLists(tx: ReadTransaction) {
+  try {
+    const allLists = (await tx.scan({ prefix: 'list/' }).values().toArray()) as List[];
+    return allLists;
+  } catch (err) {
+    console.log('err in todosByList', err)
+  }
+}
