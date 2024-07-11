@@ -15,21 +15,20 @@ import ListItem from "./ListItem";
 import { useReplicache } from "@/context/ReplicacheContext";
 import { Colors } from "@/constants/Colors";
 import ListItemAnimation from "@/components/custom/ListItemAnimation";
+import { useUser } from "@/store/user";
+import Button from "@/components/atomic/Button";
 
-type ListSectionProps = {
-    userID: string;
-}
 
-export function ListSection({ userID }: ListSectionProps) {
+export function ListSection() {
 
     const [listName, setListName] = useState('');
-    const [itemToAnimate, setItemToAnimate] = useState<string | null>(null);
     const [showListNamePopup, setShowListNamePopup] = useState(false);
 
+    const { user } = useUser();
     const { replicache } = useReplicache();
 
     // Listen for pokes related to the docs this user has access to.
-    useEventSourcePoke(`http://192.168.0.101:8080/api/replicache/poke?channel=user/${userID}`, replicache);
+    useEventSourcePoke(`http://192.168.0.202:8080/api/replicache/poke?channel=user/${user?.userID}`, replicache);
 
     const { lists, listAdaptors } = useLists(replicache);
     lists?.sort((a, b) => a?.title?.localeCompare(b?.title));
@@ -45,11 +44,10 @@ export function ListSection({ userID }: ListSectionProps) {
         try {
             await listAdaptors.createList({
                 id,
-                ownerID: userID,
+                ownerID: user?.userID as string,
                 title: listName,
             });
 
-            setItemToAnimate(id);
             handleListNamePopup();
             setListName('');
         } catch (err) {
@@ -78,15 +76,11 @@ export function ListSection({ userID }: ListSectionProps) {
                 {
                     lists?.length > 0 && lists.map((item, index) => {
                         return (
-                            <ListItemAnimation
+                            <ListItem
                                 key={item.id + item.ownerID + index}
-                                isVisible={item.id === itemToAnimate}
-                            >
-                                <ListItem
-                                    list={item}
-                                    deleteList={handleDeleteList}
-                                />
-                            </ListItemAnimation>
+                                list={item}
+                                deleteList={handleDeleteList}
+                            />
                         )
                     })
                 }
@@ -139,17 +133,12 @@ export function ListSection({ userID }: ListSectionProps) {
                             />
                         </View>
                         <View style={styles.addListbuttonContainer}>
-                        <TouchableOpacity
-                            onPress={handleNewList}
-                        >
-                            <View
-                                style={styles.addListButton}
-                            >
-                                <Text style={styles.addListButtonText}>
-                                    ADD
-                                </Text>
-                            </View>
-                        </TouchableOpacity>
+                            <Button
+                                text="ADD"
+                                ripple
+                                onButtonPress={handleNewList}
+                                disabled={listName.length === 0}
+                            />
                         </View>
                     </View>
                 </Modal>
@@ -180,7 +169,11 @@ function useEventSourcePoke(url: string, rep: Replicache<M> | null) {
         ev.addEventListener("message", async (evt) => {
             if (evt.type !== "message") return;
             if (evt.data === "poke") {
-                rep?.pull();
+                try {
+                    await rep?.pull();
+                } catch (e) {
+                    console.log('error in pull', e);
+                }
             }
         });
         return () => ev.close();

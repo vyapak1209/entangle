@@ -9,6 +9,8 @@ import { useRouter } from "expo-router";
 import { useReplicache } from "@/context/ReplicacheContext";
 import { useSubscribe } from "@/hooks/useSubscribe";
 import { getRandomColor } from "@/utils/random-color";
+import ListShareButton from "./ListShareButton";
+import Animated, { BounceInRight, BounceInUp, FadeIn, FadeInDown, FadeInLeft, FadeInRight, FadeOut, FadeOutLeft, FadeOutRight } from "react-native-reanimated";
 
 
 type Props = {
@@ -43,50 +45,72 @@ const ListItem = ({ list, deleteList }: Props) => {
         router.push({ pathname: '/(list)/[listID]', params: { listID: list.id } })
     }
 
-    return (
-        <View style={{ overflow: 'hidden' }}>
-            <Pressable
-                onPress={handleRouteToList}
-                android_ripple={{ color: Colors.light.subtleBackground, foreground: true }}
-                style={{ ...styles.listCard, backgroundColor: colorRef.current, overflow: 'hidden' }}
-            >
-                <View style={styles.listCardHeader}>
-                    <View style={styles.listShareIcon}>
-                        <AntDesign name="adduser" size={24} color={Colors.light.text} />
-                    </View>
-                    <View style={styles.listOptionsDiv}>
-                        {
-                            showListOptions &&
-                            <View style={styles.listOptionsDiv}>
-                                <View style={styles.listShareIcon}>
-                                    <AntDesign name="edit" size={24} color={Colors.light.text} />
-                                </View>
-                                <Pressable
-                                    onPress={handleDeleteList}
-                                >
-                                    <View style={styles.listShareIcon}>
-                                        <AntDesign name="delete" size={24} color={Colors.light.text} />
-                                    </View>
-                                </Pressable>
+
+    const getListOptionsUI = () => {
+        return (
+            <View>
+                {
+                    showListOptions &&
+                    <Animated.View style={styles.listOptionsDiv} entering={FadeIn} exiting={FadeOut}>
+                        <View style={styles.listShareIcon}>
+                            <AntDesign name="edit" size={24} color={Colors.light.text} />
+                        </View>
+                        <Pressable
+                            onPress={handleDeleteList}
+                        >
+                            <View style={styles.listShareIcon}>
+                                <AntDesign name="delete" size={24} color={Colors.light.text} />
                             </View>
-                        }
-                        <Pressable onPress={handleShowListOptions}>
-                            {
-                                showListOptions ?
-                                    <Entypo name="cross" size={24} color={Colors.light.text} /> :
-                                    <Octicons name="kebab-horizontal" size={24} color={Colors.light.text} />
-                            }
                         </Pressable>
-                    </View>
-                </View>
-                <Text style={styles.listActiveTask}>
-                    {(totalCount - completedCount) === 0 ? 'No' : (totalCount - completedCount)} Active Tasks
-                </Text>
-                <Text style={styles.listTitle}>
-                    {list.title}
-                </Text>
+                    </Animated.View>
+                }
+            </View>
+        )
+    }
+
+
+    const getKebabMenuUI = () => {
+        return (
+            <Pressable onPress={handleShowListOptions}>
+                {
+                    showListOptions ?
+                        <Entypo name="cross" size={24} color={Colors.light.text} /> :
+                        <Octicons name="kebab-horizontal" size={24} color={Colors.light.text} />
+                }
             </Pressable>
-        </View>
+        )
+    }
+
+
+    return (
+        <Animated.View
+            entering={FadeInDown}
+            exiting={FadeInRight}
+        >
+            <View style={{ overflow: 'hidden' }}>
+                <Pressable
+                    onPress={handleRouteToList}
+                    android_ripple={{ color: Colors.light.subtleBackground, foreground: true }}
+                    style={{ ...styles.listCard, backgroundColor: colorRef.current, overflow: 'hidden' }}
+                >
+                    <View style={styles.listCardHeader}>
+                        <ListShareButton
+                            listID={list.id}
+                        />
+                        <View style={styles.listOptionsDiv}>
+                            {getListOptionsUI()}
+                            {getKebabMenuUI()}
+                        </View>
+                    </View>
+                    <Text style={styles.listActiveTask}>
+                        {(totalCount - completedCount) === 0 ? 'No' : (totalCount - completedCount)} Active Tasks
+                    </Text>
+                    <Text style={styles.listTitle}>
+                        {list.title}
+                    </Text>
+                </Pressable>
+            </View>
+        </Animated.View>
     );
 };
 

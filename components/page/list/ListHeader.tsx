@@ -6,6 +6,8 @@ import { List } from "@/entities";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
 
+import ListShareButton from "./ListShareButton";
+
 
 type Props = {
     list: List;
@@ -33,11 +35,10 @@ const ListHeader = ({ list }: Props) => {
                     {list.title}
                 </Text>
             </View>
-            <View
-            style={styles.listShareIcon}
-            >
-            <AntDesign name="adduser" size={24} color="black" />
-            </View>
+            <ListShareButton
+                showCollaborators={false}
+                listID={list.id}
+            />
         </View>
     );
 };

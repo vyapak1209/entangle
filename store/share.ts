@@ -2,32 +2,32 @@ import { create } from 'zustand';
 import { Replicache } from 'replicache';
 import { useEffect } from 'react';
 import { M } from '@/mutators';
-import { Todo, TodoUpdate, todosByList } from '@/entities';
+import { Share, sharesByList } from '@/entities';
 
-type TodoState = {
-  todos: Todo[];
+type ShareState = {
+  shares: Share[];
   loading: boolean;
   error: boolean;
   initialiseReplicacheSubscription: (replicache: Replicache<M>, listID: string) => () => void;
 };
 
-export const useTodoStore = create<TodoState>((set) => ({
-  todos: [],
+export const useShareStore = create<ShareState>((set) => ({
+  shares: [],
   loading: false,
   error: false,
   initialiseReplicacheSubscription: (replicache: Replicache<M>, listID) => {
     const unsubscribe = replicache.subscribe(
       async (tx) => {
         try {
-          return await todosByList(tx, listID);
+          return await sharesByList(tx, listID);
         } catch (err) {
           console.error('Error in Replicache transaction:', err);
           return [];
         }
       },
       {
-        onData: (todos) => {
-          set({ todos });
+        onData: (shares) => {
+          set({ shares });
         },
         onError: (error) => {
           console.error('Error in Replicache subscription:', error);
@@ -41,8 +41,8 @@ export const useTodoStore = create<TodoState>((set) => ({
   },
 }));
 
-export const useTodos = (rep: Replicache<M> | null, listID: string) => {
-  const { todos, initialiseReplicacheSubscription } = useTodoStore();
+export const useShares = (rep: Replicache<M> | null, listID: string) => {
+  const { shares, initialiseReplicacheSubscription } = useShareStore();
 
   useEffect(() => {
     if (rep) {
@@ -53,29 +53,21 @@ export const useTodos = (rep: Replicache<M> | null, listID: string) => {
     }
   }, [rep, listID]);
 
-  const createTodo = async (todo: Todo) => {
+  const createShare = async (share: Share) => {
     try {
-      await rep?.mutate.createTodo(todo);
+      await rep?.mutate.createShare(share);
     } catch (error) {
-      console.error('Error creating todo:', error);
+      console.error('Error creating share:', error);
     }
   };
 
-  const deleteTodo = async (todoId: string) => {
+  const deleteShare = async (shareId: string) => {
     try {
-      await rep?.mutate.deleteTodo(todoId);
+      await rep?.mutate.deleteShare(shareId);
     } catch (error) {
-      console.error('Error deleting todo:', error);
+      console.error('Error deleting share:', error);
     }
   };
 
-  const updateTodo = async (todo: TodoUpdate) => {
-    try {
-      await rep?.mutate.updateTodo(todo);
-    } catch (error) {
-      console.error('Error updating todo:', error);
-    }
-  };
-
-  return { todos, todoAdaptors: { createTodo, deleteTodo, updateTodo } };
+  return { shares, shareAdaptors: { createShare, deleteShare } };
 };

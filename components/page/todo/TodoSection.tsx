@@ -36,7 +36,7 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
     const completedTodo = todos.filter(item => item.status === "DONE").length;
     const totalTodo = todos.length
 
-    useEventSourcePoke(`http://192.168.0.101:8080/api/replicache/poke?channel=list/${listID}`, replicache);
+    useEventSourcePoke(`http://192.168.0.202:8080/api/replicache/poke?channel=list/${listID}`, replicache);
 
     const [showTodoPopup, setShowTodoPopup] = useState(false);
 

@@ -1,12 +1,13 @@
 import TaskCount from '@/components/page/home/TaskCount';
 import { ListSection } from '@/components/page/list/ListSection';
 import { Colors } from '@/constants/Colors';
+import { useUser } from '@/store/user';
 import { getDayOfWeek, getFormattedDate } from '@/utils/date';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, Platform, StatusBar } from 'react-native';
 
 const HomeScreen = () => {
 
-    const spaceID = 'hayt65';
+    const { user } = useUser();
 
     const getTopSectionUI = () => {
         return (
@@ -15,7 +16,7 @@ const HomeScreen = () => {
                     Hola,
                 </Text>
                 <Text style={styles.username}>
-                    Username
+                    {user?.username}
                 </Text>
             </View>
         )
@@ -41,9 +42,7 @@ const HomeScreen = () => {
 
     const getListSectionUI = () => {
         return (
-            <ListSection 
-                userID={spaceID}
-            />
+            <ListSection />
         )
     }
 
@@ -80,7 +79,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Rubik400'
     },
     username: {
-        fontSize: 70,
+        fontSize: 60,
         color: Colors.light.text,
         fontFamily: 'Rubik500',
         lineHeight: 70

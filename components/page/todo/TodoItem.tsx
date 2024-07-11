@@ -6,13 +6,16 @@ import { AntDesign } from '@expo/vector-icons';
 import { Todo, TodoUpdate } from "@/entities";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { FadeInDown, FadeInRight, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { CollapsableContainer } from "@/components/custom/CollapsableContainer";
 import { getRandomColor } from "@/utils/random-color";
 import TodoModal from "./TodoModal";
 import { useReplicache } from "@/context/ReplicacheContext";
 import { useTodos } from "@/store/todo";
 import { Status } from "@/constants/enums";
+
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import IconButton from "@/components/atomic/IconButton";
 
 
 type Props = {
@@ -113,60 +116,63 @@ const TodoItem = ({ todo }: Props) => {
 
 
     return (
-        <Pressable onPress={handleTodoClick}>
-            <View
-                style={{
-                    ...styles.todoCard,
-                    backgroundColor: colorRef.current
-                }}>
-                <View style={styles.todoCardHeader}>
-                    <Pressable onPress={onTodoStatusChange}>
-                        <View style={styles.todoStatusIcon}>
-                            {
-                                todo.status === 'DONE' ?
-                                    <AntDesign name="check" size={24} color={Colors.light.text} /> :
-                                    null
-                            }
-                        </View>
-                    </Pressable>
-
-                    <View style={styles.todoOptionsDiv}>
-                        <Animated.View style={[styles.todoOptionIcons, animatedOpacityStyle]}>
-                            <Pressable onPress={handleTodoPopup}>
-                                <View style={styles.todoStatusIcon}>
-                                    <AntDesign name="edit" size={24} color={Colors.light.text} />
-                                </View>
-                            </Pressable>
-                            <Pressable onPress={handleTodoDelete}>
-                                <View style={styles.todoStatusIcon}>
-                                    <AntDesign name="delete" size={24} color={Colors.light.text} />
-                                </View>
-                            </Pressable>
-                        </Animated.View>
-                        <Animated.View
-                            style={animatedIconStyle}
+        <Animated.View entering={FadeInDown} exiting={FadeInRight}>
+            <Pressable onPress={handleTodoClick}>
+                <View
+                    style={{
+                        ...styles.todoCard,
+                        backgroundColor: colorRef.current
+                    }}>
+                    <View style={styles.todoCardHeader}>
+                        <IconButton
+                            onPressHandle={onTodoStatusChange}
                         >
-                            <Entypo name="chevron-down" size={24} color={Colors.light.text} />
-                        </Animated.View>
+                            <View>
+                                {
+                                    todo.status === 'DONE' ?
+                                        <AntDesign name="check" size={24} color={Colors.light.text} /> :
+                                        null
+                                }
+                            </View>
+                        </IconButton>
+                        <View style={styles.todoOptionsDiv}>
+                            <Animated.View style={[styles.todoOptionIcons, animatedOpacityStyle]}>
+                                <Pressable onPress={handleTodoPopup}>
+                                    <View style={styles.todoStatusIcon}>
+                                        <AntDesign name="edit" size={24} color={Colors.light.text} />
+                                    </View>
+                                </Pressable>
+                                <Pressable onPress={handleTodoDelete}>
+                                    <View style={styles.todoStatusIcon}>
+                                        <AntDesign name="delete" size={24} color={Colors.light.text} />
+                                    </View>
+                                </Pressable>
+                            </Animated.View>
+                            <Animated.View
+                                style={animatedIconStyle}
+                            >
+                                <Entypo name="chevron-down" size={24} color={Colors.light.text} />
+                            </Animated.View>
+                        </View>
                     </View>
+                    <View style={styles.todoCardTitle}>
+                        <Text style={styles.todoTitle}>
+                            {todo.title}
+                        </Text>
+                    </View>
+                    {additionalDetailsUI()}
                 </View>
-                <View style={styles.todoCardTitle}>
-                    <Text style={styles.todoTitle}>
-                        {todo.title}
-                    </Text>
-                </View>
-                {additionalDetailsUI()}
-            </View>
-            <TodoModal
-                isVisible={showEditPopup}
-                closeTodoPopup={handleTodoPopup}
-                listID={todo.listID}
-                context="UPDATE"
-                onSubmit={onEditTodoSubmit}
-                overrideState={todo}
-                clearOnSubmit={false}
-            />
-        </Pressable>
+                <TodoModal
+                    isVisible={showEditPopup}
+                    closeTodoPopup={handleTodoPopup}
+                    listID={todo.listID}
+                    context="UPDATE"
+                    onSubmit={onEditTodoSubmit}
+                    overrideState={todo}
+                    clearOnSubmit={false}
+                />
+            </Pressable>
+        </Animated.View>
     );
 };
 

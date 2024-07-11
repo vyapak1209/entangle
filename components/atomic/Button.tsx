@@ -9,13 +9,20 @@ type ButtonProps = {
     ripple?: boolean;
     disabled?: boolean;
     iconNode?: ReactNode;
+    fullWidth?: boolean;
+    type?: 'primary' | 'secondary';
 }
 
-const Button = ({ text, ripple, disabled, onButtonPress, iconNode }: ButtonProps) => {
+const Button = ({ text, ripple, disabled, onButtonPress, iconNode, fullWidth = false, type = 'primary' }: ButtonProps) => {
     return (
         <View style={{ overflow: 'hidden' }}>
             <Pressable
-                style={[disabled ? styles.buttonDisabled : {}, styles.buttonContainer]}
+                style={[
+                    disabled ? styles.buttonDisabled : {}, 
+                    styles.buttonContainer, 
+                    fullWidth ? { width: '100%' } : {},
+                    type === 'primary' ? styles.primary : styles.secondary
+                ]}
                 onPress={onButtonPress}
                 android_ripple={{ color: Colors.light.subtleBackground, foreground: true }}
                 disabled={disabled}
@@ -45,7 +52,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 5,
         minWidth: 85,
-        minHeight: 45
+        minHeight: 45,
+        overflow: 'hidden'
     },
     buttonText: {
         fontSize: 20,
@@ -55,5 +63,13 @@ const styles = StyleSheet.create({
     buttonDisabled: {
         opacity: 0.5,
         pointerEvents: 'none'
+    },
+    primary: {
+
+    },
+    secondary: {
+        backgroundColor: 'transparent',
+        borderColor: Colors.light.subtleBackground,
+        borderWidth: 2
     }
 })
