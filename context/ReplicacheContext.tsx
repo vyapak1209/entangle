@@ -34,11 +34,11 @@ export const ReplicacheProvider = ({ children }: { children: ReactNode }) => {
 
     const r = new Replicache({
       name: spaceID,
-      licenseKey: 'l19880c269c0d4620a24b3a05218559c3',
+      licenseKey: process.env.EXPO_PUBLIC_REPLICACHE_KEY as string,
       mutators,
       experimentalCreateKVStore: createReplicacheExpoSQLiteExperimentalCreateKVStore,
-      pushURL: `http://192.168.0.202:8080/api/replicache/push?userID=${spaceID}`,
-      pullURL: `http://192.168.0.202:8080/api/replicache/pull?userID=${spaceID}`,
+      pushURL: `${process.env.EXPO_PUBLIC_API_URL}/api/replicache/push?userID=${spaceID}`,
+      pullURL: `${process.env.EXPO_PUBLIC_API_URL}/api/replicache/pull?userID=${spaceID}`,
     });
 
     setReplicache(r);

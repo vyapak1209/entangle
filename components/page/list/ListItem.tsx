@@ -11,6 +11,7 @@ import { useSubscribe } from "@/hooks/useSubscribe";
 import { getRandomColor } from "@/utils/random-color";
 import ListShareButton from "./ListShareButton";
 import Animated, { BounceInRight, BounceInUp, FadeIn, FadeInDown, FadeInLeft, FadeInRight, FadeOut, FadeOutLeft, FadeOutRight } from "react-native-reanimated";
+import SlideToDelete from "@/components/custom/SlideToDelete";
 
 
 type Props = {
@@ -83,34 +84,37 @@ const ListItem = ({ list, deleteList }: Props) => {
 
 
     return (
-        <Animated.View
-            entering={FadeInDown}
-            exiting={FadeInRight}
+        <SlideToDelete
+            onDelete={handleDeleteList}
         >
-            <View style={{ overflow: 'hidden' }}>
-                <Pressable
-                    onPress={handleRouteToList}
-                    android_ripple={{ color: Colors.light.subtleBackground, foreground: true }}
-                    style={{ ...styles.listCard, backgroundColor: colorRef.current, overflow: 'hidden' }}
-                >
-                    <View style={styles.listCardHeader}>
-                        <ListShareButton
-                            listID={list.id}
-                        />
-                        <View style={styles.listOptionsDiv}>
-                            {getListOptionsUI()}
-                            {getKebabMenuUI()}
+            <Animated.View
+                entering={FadeInDown}
+            >
+                <View style={{ overflow: 'hidden' }}>
+                    <Pressable
+                        onPress={handleRouteToList}
+                        android_ripple={{ color: Colors.light.subtleBackground, foreground: true }}
+                        style={{ ...styles.listCard, backgroundColor: colorRef.current, overflow: 'hidden' }}
+                    >
+                        <View style={styles.listCardHeader}>
+                            <ListShareButton
+                                listID={list.id}
+                            />
+                            <View style={styles.listOptionsDiv}>
+                                {getListOptionsUI()}
+                                {getKebabMenuUI()}
+                            </View>
                         </View>
-                    </View>
-                    <Text style={styles.listActiveTask}>
-                        {(totalCount - completedCount) === 0 ? 'No' : (totalCount - completedCount)} Active Tasks
-                    </Text>
-                    <Text style={styles.listTitle}>
-                        {list.title}
-                    </Text>
-                </Pressable>
-            </View>
-        </Animated.View>
+                        <Text style={styles.listActiveTask}>
+                            {(totalCount - completedCount) === 0 ? 'No' : (totalCount - completedCount)} Active Tasks
+                        </Text>
+                        <Text style={styles.listTitle}>
+                            {list.title}
+                        </Text>
+                    </Pressable>
+                </View>
+            </Animated.View>
+        </SlideToDelete>
     );
 };
 

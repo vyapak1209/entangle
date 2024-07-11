@@ -13,6 +13,7 @@ import TodoItem from "./TodoItem";
 import { Colors } from "@/constants/Colors";
 import { Entypo } from "@expo/vector-icons";
 import TodoModal from "./TodoModal";
+import Button from "@/components/atomic/Button";
 
 type TodoSectionProps = {
     listID: string;
@@ -36,7 +37,7 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
     const completedTodo = todos.filter(item => item.status === "DONE").length;
     const totalTodo = todos.length
 
-    useEventSourcePoke(`http://192.168.0.202:8080/api/replicache/poke?channel=list/${listID}`, replicache);
+    useEventSourcePoke(`${process.env.EXPO_PUBLIC_API_URL}/api/replicache/poke?channel=list/${listID}`, replicache);
 
     const [showTodoPopup, setShowTodoPopup] = useState(false);
 
@@ -106,7 +107,7 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
 
     const addTodoModalUI = () => {
         return (
-            <TodoModal 
+            <TodoModal
                 isVisible={showTodoPopup}
                 closeTodoPopup={handleTodoPopup}
                 listID={listID}
@@ -118,11 +119,26 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
     }
 
 
-    return (
-        <View
-            style={styles.container}
-        >
-            {getTodoSectionHeader()}
+    const getTodoLists = () => {
+
+        if (todos.length === 0) {
+            return (
+                <View>
+                    <Text
+                        style={styles.emptyTitle}
+                    >
+                        Create your first list
+                    </Text>
+                    <Button
+                        text="ADD A TODO"
+                        onButtonPress={handleTodoPopup}
+                    />
+                </View>
+            )
+        }
+
+
+        return (
             <View>
                 {
                     todos?.length > 0 && todos.map((item, index) => {
@@ -135,6 +151,16 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
                     })
                 }
             </View>
+        )
+    }
+
+
+    return (
+        <View
+            style={styles.container}
+        >
+            {getTodoSectionHeader()}
+            {getTodoLists()}
             {getTodoInputUI()}
         </View>
     );
@@ -238,5 +264,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'flex-start',
         gap: 20
+    },
+    emptyTitle: {
+        alignSelf: 'center',
+        fontFamily: 'Rubik400',
+        marginBottom: 20,
+        fontSize: 30,
+        marginTop: 100
     }
 });

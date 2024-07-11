@@ -16,6 +16,7 @@ import { Status } from "@/constants/enums";
 
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import IconButton from "@/components/atomic/IconButton";
+import SlideToDelete from "@/components/custom/SlideToDelete";
 
 
 type Props = {
@@ -74,9 +75,9 @@ const TodoItem = ({ todo }: Props) => {
     }
 
 
-    const handleTodoDelete = async () => {
+    const handleTodoDelete = async (force?: boolean) => {
 
-        if (!expanded) {
+        if (!expanded && !force) {
             return;
         }
 
@@ -116,63 +117,67 @@ const TodoItem = ({ todo }: Props) => {
 
 
     return (
-        <Animated.View entering={FadeInDown} exiting={FadeInRight}>
-            <Pressable onPress={handleTodoClick}>
-                <View
-                    style={{
-                        ...styles.todoCard,
-                        backgroundColor: colorRef.current
-                    }}>
-                    <View style={styles.todoCardHeader}>
-                        <IconButton
-                            onPressHandle={onTodoStatusChange}
-                        >
-                            <View>
-                                {
-                                    todo.status === 'DONE' ?
-                                        <AntDesign name="check" size={24} color={Colors.light.text} /> :
-                                        null
-                                }
-                            </View>
-                        </IconButton>
-                        <View style={styles.todoOptionsDiv}>
-                            <Animated.View style={[styles.todoOptionIcons, animatedOpacityStyle]}>
-                                <Pressable onPress={handleTodoPopup}>
-                                    <View style={styles.todoStatusIcon}>
-                                        <AntDesign name="edit" size={24} color={Colors.light.text} />
-                                    </View>
-                                </Pressable>
-                                <Pressable onPress={handleTodoDelete}>
-                                    <View style={styles.todoStatusIcon}>
-                                        <AntDesign name="delete" size={24} color={Colors.light.text} />
-                                    </View>
-                                </Pressable>
-                            </Animated.View>
-                            <Animated.View
-                                style={animatedIconStyle}
+        <SlideToDelete
+            onDelete={() => handleTodoDelete(true)}
+        >
+            <Animated.View entering={FadeInDown}>
+                <Pressable onPress={handleTodoClick}>
+                    <View
+                        style={{
+                            ...styles.todoCard,
+                            backgroundColor: colorRef.current
+                        }}>
+                        <View style={styles.todoCardHeader}>
+                            <IconButton
+                                onPressHandle={onTodoStatusChange}
                             >
-                                <Entypo name="chevron-down" size={24} color={Colors.light.text} />
-                            </Animated.View>
+                                <View>
+                                    {
+                                        todo.status === 'DONE' ?
+                                            <AntDesign name="check" size={24} color={Colors.light.text} /> :
+                                            null
+                                    }
+                                </View>
+                            </IconButton>
+                            <View style={styles.todoOptionsDiv}>
+                                <Animated.View style={[styles.todoOptionIcons, animatedOpacityStyle]}>
+                                    <Pressable onPress={handleTodoPopup}>
+                                        <View style={styles.todoStatusIcon}>
+                                            <AntDesign name="edit" size={24} color={Colors.light.text} />
+                                        </View>
+                                    </Pressable>
+                                    <Pressable onPress={() => handleTodoDelete(false)}>
+                                        <View style={styles.todoStatusIcon}>
+                                            <AntDesign name="delete" size={24} color={Colors.light.text} />
+                                        </View>
+                                    </Pressable>
+                                </Animated.View>
+                                <Animated.View
+                                    style={animatedIconStyle}
+                                >
+                                    <Entypo name="chevron-down" size={24} color={Colors.light.text} />
+                                </Animated.View>
+                            </View>
                         </View>
+                        <View style={styles.todoCardTitle}>
+                            <Text style={styles.todoTitle}>
+                                {todo.title}
+                            </Text>
+                        </View>
+                        {additionalDetailsUI()}
                     </View>
-                    <View style={styles.todoCardTitle}>
-                        <Text style={styles.todoTitle}>
-                            {todo.title}
-                        </Text>
-                    </View>
-                    {additionalDetailsUI()}
-                </View>
-                <TodoModal
-                    isVisible={showEditPopup}
-                    closeTodoPopup={handleTodoPopup}
-                    listID={todo.listID}
-                    context="UPDATE"
-                    onSubmit={onEditTodoSubmit}
-                    overrideState={todo}
-                    clearOnSubmit={false}
-                />
-            </Pressable>
-        </Animated.View>
+                    <TodoModal
+                        isVisible={showEditPopup}
+                        closeTodoPopup={handleTodoPopup}
+                        listID={todo.listID}
+                        context="UPDATE"
+                        onSubmit={onEditTodoSubmit}
+                        overrideState={todo}
+                        clearOnSubmit={false}
+                    />
+                </Pressable>
+            </Animated.View>
+        </SlideToDelete>
     );
 };
 

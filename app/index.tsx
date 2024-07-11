@@ -2,10 +2,12 @@ import Button from '@/components/atomic/Button';
 import IconButton from '@/components/atomic/IconButton';
 import { Colors } from '@/constants/Colors';
 import { useUser } from '@/store/user';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
+
+import { EvilIcons } from '@expo/vector-icons';
 
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -83,9 +85,13 @@ const YourComponent = () => {
     <View style={styles.container}>
       {user ? (
         <View>
+          <Text style={styles.logo}>
+            entangled
+            <Entypo name="link" size={40} color={Colors.light.text} />
+          </Text>
           <View style={styles.labelContainer}>
-            <Text style={styles.label}>Username: {user?.username ?? ''}</Text>
-            <Text style={styles.label}>Collaborator ID: {user?.userID ?? ''}</Text>
+            <Text style={styles.label}>Username: <Text style={styles.labelItem}>{user?.username ?? ''}</Text></Text>
+            <Text style={styles.label}>Collaborator ID: <Text style={styles.labelItem}>{user?.userID ?? ''}</Text></Text>
           </View>
           {renderInputFields()}
           <View style={styles.buttonsContainer}>
@@ -108,6 +114,10 @@ const YourComponent = () => {
         </View>
       ) : (
         <View>
+          <Text style={styles.logo}>
+            entangled
+            <Entypo name="link" size={40} color={Colors.light.text} />
+          </Text>
           {renderInputFields()}
           <View
             style={styles.loginContainer}
@@ -191,6 +201,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 15
+  },
+  logo: {
+    fontFamily: 'Rubik600',
+    fontSize: 40,
+    alignSelf: 'center',
+    marginBottom: 50,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  labelItem: {
+    fontSize: 26,
+    fontFamily: 'Rubik500'
   }
 });
 

@@ -28,7 +28,7 @@ export function ListSection() {
     const { replicache } = useReplicache();
 
     // Listen for pokes related to the docs this user has access to.
-    useEventSourcePoke(`http://192.168.0.202:8080/api/replicache/poke?channel=user/${user?.userID}`, replicache);
+    useEventSourcePoke(`${process.env.EXPO_PUBLIC_API_URL}/api/replicache/poke?channel=user/${user?.userID}`, replicache);
 
     const { lists, listAdaptors } = useLists(replicache);
     lists?.sort((a, b) => a?.title?.localeCompare(b?.title));
@@ -71,6 +71,23 @@ export function ListSection() {
 
 
     const getAllLists = () => {
+
+        if (lists.length === 0) {
+            return (
+                <View>
+                    <Text
+                        style={styles.emptyTitle}
+                    >
+                        Create your first list
+                    </Text>
+                    <Button 
+                        text="ADD A LIST"
+                        onButtonPress={handleListNamePopup}
+                    />
+                </View>
+            )
+        }
+
         return (
             <View>
                 {
@@ -242,5 +259,12 @@ const styles = StyleSheet.create({
         display: 'flex',
         alignItems: 'flex-end',
         marginTop: 20
+    },
+    emptyTitle: {
+        alignSelf: 'center',
+        fontFamily: 'Rubik400',
+        marginBottom: 20,
+        fontSize: 30,
+        marginTop: 100
     }
 });
