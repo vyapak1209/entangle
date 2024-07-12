@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
 import { Replicache } from 'replicache';
 import { createReplicacheExpoSQLiteExperimentalCreateKVStore } from "@react-native-replicache/react-native-expo-sqlite";
 import { M, mutators } from "@/mutators";
@@ -21,7 +21,7 @@ export const useReplicache = (): ReplicacheContextType => {
 export const ReplicacheProvider = ({ children }: { children: ReactNode }) => {
   const [replicache, setReplicache] = useState<Replicache<M> | null>(null);
 
-  const { user } = useUser()
+  const { user } = useUser();
 
   useEffect(() => {
     const spaceID = user?.userID;
@@ -39,7 +39,7 @@ export const ReplicacheProvider = ({ children }: { children: ReactNode }) => {
       experimentalCreateKVStore: createReplicacheExpoSQLiteExperimentalCreateKVStore,
       pushURL: `${process.env.EXPO_PUBLIC_API_URL}/api/replicache/push?userID=${spaceID}`,
       pullURL: `${process.env.EXPO_PUBLIC_API_URL}/api/replicache/pull?userID=${spaceID}`,
-      pullInterval: 10000
+      pullInterval: 4000
     });
 
     setReplicache(r);

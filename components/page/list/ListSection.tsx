@@ -17,6 +17,7 @@ import { Colors } from "@/constants/Colors";
 import ListItemAnimation from "@/components/custom/ListItemAnimation";
 import { useUser } from "@/store/user";
 import Button from "@/components/atomic/Button";
+import useAppState from "@/hooks/useAppState";
 
 
 export function ListSection() {
@@ -26,9 +27,17 @@ export function ListSection() {
 
     const { user } = useUser();
     const { replicache } = useReplicache();
+    const appStateVisible = useAppState();
 
     // Listen for pokes related to the docs this user has access to.
     useEventSourcePoke(`${process.env.EXPO_PUBLIC_API_URL}/api/replicache/poke?channel=user/${user?.userID}`, replicache);
+
+    useEffect(() => {
+        if (replicache && appStateVisible) {
+            console.log('Force pulled')
+            replicache.pull();
+        }
+    }, [appStateVisible]);
 
     const { lists, listAdaptors } = useLists(replicache);
     lists?.sort((a, b) => a?.title?.localeCompare(b?.title));

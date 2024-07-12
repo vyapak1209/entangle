@@ -14,6 +14,7 @@ import { Colors } from "@/constants/Colors";
 import { Entypo } from "@expo/vector-icons";
 import TodoModal from "./TodoModal";
 import Button from "@/components/atomic/Button";
+import useAppState from "@/hooks/useAppState";
 
 type TodoSectionProps = {
     listID: string;
@@ -31,6 +32,7 @@ const initialTodoState = {
 const TodoSection = ({ listID }: TodoSectionProps) => {
 
     const { replicache } = useReplicache();
+    const appStateVisible = useAppState();
     const { todos, todoAdaptors } = useTodos(replicache, listID);
     todos?.sort((t1: Todo, t2: Todo) => t1?.sort - t2?.sort);
 
@@ -38,6 +40,12 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
     const totalTodo = todos.length
 
     useEventSourcePoke(`${process.env.EXPO_PUBLIC_API_URL}/api/replicache/poke?channel=list/${listID}`, replicache);
+
+    useEffect(() => {
+        if (replicache && appStateVisible) {
+            replicache.pull();
+        }
+    }, [appStateVisible])
 
     const [showTodoPopup, setShowTodoPopup] = useState(false);
 
