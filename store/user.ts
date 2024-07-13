@@ -1,18 +1,13 @@
 import { create } from 'zustand';
 import { clearUserFromStorage, loadUserFromStorage, saveUserToStorage } from '@/utils/storage';
-import { generateUUID } from '@/utils/random-id';
 import { useEffect } from 'react';
+import { User } from '@/entities/user';
+import { GhConfig, LoginUserResponse, createUser, loginUser } from '@/api';
 
-export type User = {
-  username: string;
-  userID: string;
-  ghRepoName: string;
-  ghPat: string;
-};
 
 type UserState = {
-  user: User | null;
-  setUser: (user: User) => void;
+  user: Partial<User> | null;
+  setUser: (user: Partial<User>) => void;
   clearUser: () => void;
 };
 
@@ -34,22 +29,52 @@ export const useUser = () => {
       }
     };
     loadUser();
-  }, [setUser]);
+  }, []);
 
-  const login = async (username: string, ghRepoName: string, ghPat: string) => {
-    const userID = generateUUID(6); // Function to generate a unique ID
-    const user = { username, userID, ghRepoName, ghPat };
-    await saveUserToStorage(user);
-    setUser(user);
-  };
 
-  const updateUser = async (ghRepoName: string, ghPat: string) => {
-    if (user) {
-      const updatedUser = { ...user, ghRepoName, ghPat };
-      await saveUserToStorage(updatedUser);
-      setUser(updatedUser);
+  const signUp = async (user: Partial<User>, ghConfig: GhConfig) => {
+    try {
+      const signUpResp = await createUser(user, ghConfig);
+
+      setUser(signUpResp?.data?.user as Partial<User>);
+
+      if (signUpResp?.data?.success) {
+
+        setUser(signUpResp?.data?.user as Partial<User>);
+
+        return Promise.resolve(signUpResp?.data);
+      } else {
+
+        return Promise.reject(signUpResp?.data);
+      }
+
+    } catch (err) {
+      console.log('Error while signing in', err);
+      return Promise.reject(err);
+    }
+  }
+
+  const login = async (username: string, passkey: number): Promise<LoginUserResponse> => {
+    try {
+
+      const loggedInResp = await loginUser(username, passkey);
+
+      if (loggedInResp?.data?.success) {
+      
+        setUser(loggedInResp?.data?.user as Partial<User>);
+
+        return Promise.resolve(loggedInResp?.data);
+      } else {
+
+        return Promise.reject(loggedInResp?.data);
+      }
+
+    } catch (err) {
+      console.log('Error while logging in', err);
+      return Promise.reject(err);
     }
   };
+
 
   const logout = async () => {
     clearUserFromStorage();
@@ -59,7 +84,7 @@ export const useUser = () => {
   return {
     user,
     login,
-    updateUser,
+    signUp,
     logout,
   };
 };

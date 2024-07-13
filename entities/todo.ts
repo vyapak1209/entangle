@@ -7,7 +7,7 @@ export const todoSchema = z.object({
   title: z.string(),
   description: z.string(),
   listID: z.string(),
-  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE']).default('TODO'),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'CLOSED']).default('TODO'),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).default('LOW'),
   sort: z.number(),
 });
@@ -26,7 +26,7 @@ export const {
 export async function allTodos(tx: ReadTransaction) {
   try {
     const allTodos = (await tx.scan({ prefix: 'todo/' }).values().toArray()) as Todo[];
-    return allTodos;
+    return allTodos.filter(todo => todo.status !== 'CLOSED');
   } catch (err) {
     console.log('err in todosByList', err)
   }
@@ -35,7 +35,7 @@ export async function allTodos(tx: ReadTransaction) {
 export async function todosByList(tx: ReadTransaction, listID: string) {
   try {
     const allTodos = (await tx.scan({ prefix: 'todo/' }).values().toArray()) as Todo[];
-    return allTodos.filter(todo => todo.listID === listID);
+    return allTodos.filter(todo => (todo.listID === listID && todo.status !== 'CLOSED'));
   } catch (err) {
     console.log('err in todosByList', err)
   }
