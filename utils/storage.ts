@@ -1,8 +1,8 @@
-import { User } from "@/store/user";
+import { User } from "@/entities/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
-export const saveUserToStorage = async (user: User) => {
+export const saveUserToStorage = async (user: Partial<User>) => {
     await AsyncStorage.setItem('user', JSON.stringify(user));
 };
 

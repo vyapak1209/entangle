@@ -5,58 +5,134 @@ import { useUser } from '@/store/user';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Pressable } from 'react-native';
 
-import { EvilIcons } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { LoginUserResponse } from '@/api';
 
-const YourComponent = () => {
+const AuthPage = () => {
+  const [authState, setAuthState] = useState<'signup' | 'login'>('login');
   const [username, setUsername] = useState('');
+  const [passkey, setPasskey] = useState('');
   const [ghRepoName, setGhRepoName] = useState('');
   const [ghPat, setGhPat] = useState('');
 
   const [checkGithub, setCheckGithub] = useState(false);
 
-  const { user, login, updateUser, logout } = useUser();
+  const { user, login, signUp, logout } = useUser();
 
   const router = useRouter();
 
-  const toLogin = username.length < 3 && (checkGithub && (ghRepoName.length > 3 && ghPat.length > 3))
+  const disableLogin = authState === 'login' && !user && (username.length < 3 || passkey.length < 4);
+  const disableSignUp = authState === 'signup' && !user && ((username.length < 3 || passkey.length < 4) || (checkGithub && (ghRepoName.length < 3 || ghPat.length < 3)));
 
-  const handleLogin = () => {
+  const clearInputs = () => {
+    setUsername('');
+    setPasskey('');
+    setGhPat('');
+    setGhRepoName('');
+  }
 
-    if (toLogin) {
+  const handleAuthClick = async () => {
+    switch (authState) {
+      case 'login':
+        handleLogin()
+        break;
+
+      case 'signup':
+        handleSignUp()
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  const handleLogin = async () => {
+
+    if (disableLogin) {
       return;
     }
 
-    login(username, ghRepoName, ghPat);
+    try {
+      await login(username, Number(passkey));
+      clearInputs();
+      takeMeHome();
 
-    takeMeHome();
+    } catch (err: any) {
+      console.log('Error while logging in AuthPage', err);
+
+      Toast.show({
+        text1Style: {fontSize: 18, fontFamily: 'Rubik400'},
+        swipeable: true,
+        type: 'error',
+        text1: err.message as string ?? 'Something went wrong!'
+      });
+    }
   };
+
+
+  const switchAuthState = () => {
+    setAuthState(prev => prev === 'login' ? 'signup' : 'login')
+  }
+
+
+  const handleSignUp = async () => {
+
+    if (disableSignUp) {
+      return;
+    }
+
+    try {
+      await signUp({ username, passkey: Number(passkey) }, { ghRepoName, ghPat });
+      clearInputs();
+      takeMeHome();
+
+    } catch (err: any) {
+      console.log('Error while signing in AuthPage', err);
+
+      Toast.show({
+        text1Style: {fontSize: 18, fontFamily: 'Rubik400'},
+        swipeable: true,
+        type: 'error',
+        text1: err.message as string ?? 'Something went wrong!'
+      });
+    }
+  };
+
 
   const takeMeHome = () => {
     router.push('/home');
   };
 
-  const handleUpdateDetails = () => {
-    updateUser(ghRepoName, ghPat);
-  };
-
   const renderInputFields = () => (
     <>
       {!user && (
-        <TextInput
-          style={styles.input}
-          value={username}
-          onChangeText={setUsername}
-          placeholder="Username"
-          placeholderTextColor={Colors.light.placeholder}
-        />
+        <View>
+          <TextInput
+            style={styles.input}
+            value={username}
+            onChangeText={setUsername}
+            placeholder={ checkGithub ? "GitHub Username" : "Username" }
+            placeholderTextColor={Colors.light.placeholder}
+          />
+          <TextInput
+            style={styles.input}
+            value={passkey}
+            onChangeText={setPasskey}
+            placeholder="Pass Key"
+            maxLength={4}
+            keyboardType='numeric'
+            secureTextEntry={true}
+            placeholderTextColor={Colors.light.placeholder}
+          />
+        </View>
       )}
       {
-        checkGithub || user ?
+        authState === 'signup' && checkGithub ?
           <Animated.View entering={FadeIn}>
             <View>
               <TextInput
@@ -93,19 +169,18 @@ const YourComponent = () => {
             <Text style={styles.label}>Username: <Text style={styles.labelItem}>{user?.username ?? ''}</Text></Text>
             <Text style={styles.label}>Collaborator ID: <Text style={styles.labelItem}>{user?.userID ?? ''}</Text></Text>
           </View>
-          {renderInputFields()}
+
           <View style={styles.buttonsContainer}>
             {
               user ?
                 <View style={styles.loggedInButtons}>
-                  <Button text="UPDATE GIT" onButtonPress={handleUpdateDetails} type='secondary' />
-                  <Button text="LOGOUT" onButtonPress={logout} />
+                  <Button text="LOGOUT" onButtonPress={logout} type='secondary' />
                 </View> :
                 null
             }
             <IconButton
               onPressHandle={takeMeHome}
-              disabled={toLogin}
+              disabled={disableLogin}
               size={65}
             >
               <AntDesign name="right" size={24} color="black" />
@@ -122,23 +197,39 @@ const YourComponent = () => {
           <View
             style={styles.loginContainer}
           >
-            <BouncyCheckbox
-              size={25}
-              fillColor={Colors.light.subtleBackground}
-              unFillColor={Colors.light.background}
-              text="Connect to GitHub"
-              iconStyle={{ borderColor: Colors.light.text }}
-              innerIconStyle={{ borderWidth: 2 }}
-              textStyle={{ fontFamily: "Rubik500", textDecorationLine: "none", fontSize: 20 }}
-              onPress={(isChecked: boolean) => { setCheckGithub(isChecked) }}
-            />
-            <IconButton
-              onPressHandle={handleLogin}
-              disabled={toLogin}
-              size={65}
-            >
-              <AntDesign name="right" size={24} color="black" />
-            </IconButton>
+            {
+              authState === 'signup' &&
+              <BouncyCheckbox
+                size={25}
+                fillColor={Colors.light.subtleBackground}
+                unFillColor={Colors.light.background}
+                text="Connect to GitHub"
+                iconStyle={{ borderColor: Colors.light.text }}
+                style={{ marginBottom: 20 }}
+                innerIconStyle={{ borderWidth: 2 }}
+                textStyle={{ fontFamily: "Rubik500", textDecorationLine: "none", fontSize: 20 }}
+                isChecked={checkGithub}
+                onPress={(isChecked: boolean) => { setCheckGithub(isChecked) }}
+              />
+            }
+            <View style={styles.authSwitcher}>
+              <Pressable onPress={switchAuthState}>
+                <Text style={styles.authLabel}>
+                  <Text style={styles.authText}>
+                    {authState === 'login' ? 'New user?' : 'Already a user?'}
+                  </Text>
+                  &nbsp;&nbsp;
+                  {authState === 'login' ? 'SIGN UP' : 'LOGIN'}
+                </Text>
+              </Pressable>
+              <IconButton
+                onPressHandle={handleAuthClick}
+                disabled={disableLogin || disableSignUp}
+                size={65}
+              >
+                <AntDesign name="right" size={24} color="black" />
+              </IconButton>
+            </View>
           </View>
         </View>
       )}
@@ -214,7 +305,22 @@ const styles = StyleSheet.create({
   labelItem: {
     fontSize: 26,
     fontFamily: 'Rubik500'
+  },
+  authSwitcher: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  authLabel: {
+    fontSize: 22,
+    fontFamily: 'Rubik500'
+  },
+  authText: {
+    fontSize: 18,
+    fontFamily: 'Rubik400',
   }
 });
 
-export default YourComponent;
+export default AuthPage;

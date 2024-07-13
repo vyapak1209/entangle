@@ -7,7 +7,8 @@ import { useTodos } from "@/store/todo";
 import { Replicache } from "replicache";
 import { M } from "@/mutators";
 import { Todo, TodoUpdate } from "@/entities";
-import { generateUUID } from "@/utils/random-id";
+import uuid from 'react-native-uuid';
+
 import { useReplicache } from "@/context/ReplicacheContext";
 import TodoItem from "./TodoItem";
 import { Colors } from "@/constants/Colors";
@@ -58,7 +59,7 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
             await todoAdaptors.createTodo({
                 ...todo,
                 listID,
-                id: generateUUID(16)
+                id: uuid.v4()
             } as Todo);
 
             handleTodoPopup();

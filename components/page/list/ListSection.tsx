@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Entypo } from '@expo/vector-icons';
 
+import uuid from 'react-native-uuid';
+
 import EventSource from "react-native-sse";
 
 import { useLists } from "@/store/list";
@@ -10,7 +12,6 @@ import Modal from "react-native-modal";
 
 import { Replicache } from "replicache";
 import { M } from "@/mutators";
-import { generateUUID } from "@/utils/random-id";
 import ListItem from "./ListItem";
 import { useReplicache } from "@/context/ReplicacheContext";
 import { Colors } from "@/constants/Colors";
@@ -48,7 +49,7 @@ export function ListSection() {
             return;
         }
 
-        const id = generateUUID(36);
+        const id = uuid.v4() as string;
 
         try {
             await listAdaptors.createList({

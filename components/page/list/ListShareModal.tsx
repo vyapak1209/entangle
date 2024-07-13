@@ -7,7 +7,8 @@ import Button from '@/components/atomic/Button';
 import { Colors } from '@/constants/Colors';
 import { useShares } from '@/store/share';
 import { useReplicache } from '@/context/ReplicacheContext';
-import { generateUUID } from '@/utils/random-id';
+import uuid from 'react-native-uuid';
+
 import { AnimatedView } from 'react-native-reanimated/lib/typescript/reanimated2/component/View';
 import SlideToDelete from '@/components/custom/SlideToDelete';
 import Animated from 'react-native-reanimated';
@@ -44,7 +45,7 @@ const ListShareModal = ({ isVisible, listID, handleClose }: Props) => {
     }
 
     try {
-      const shareID = generateUUID(6);
+      const shareID = uuid.v4() as string;
       
       setItemToAnimate(shareID);
 

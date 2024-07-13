@@ -5,6 +5,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
+import Toast from 'react-native-toast-message';
+
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { bootCryptoPolyfill } from '@/utils/crypto-polyfill';
 import { ReplicacheProvider } from '@/context/ReplicacheContext';
@@ -48,6 +50,7 @@ export default function RootLayout() {
           <Stack.Screen name="(list)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
+        <Toast />
       </ThemeProvider>
     </ReplicacheProvider>
   );

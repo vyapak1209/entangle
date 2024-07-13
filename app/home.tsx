@@ -9,6 +9,8 @@ const HomeScreen = () => {
 
     const { user } = useUser();
 
+    console.log(user)
+
     const getTopSectionUI = () => {
         return (
             <View style={styles.greetingDiv}>
