@@ -9,7 +9,7 @@
       },
       "channel": "preview",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://alternate-entangle-server.onrender.com",
+        "EXPO_PUBLIC_API_URL": "https://alternate-entangle-server.fly.dev",
         "EXPO_PUBLIC_REPLICACHE_KEY": "l19880c269c0d4620a24b3a05218559c3"
       }
     },
@@ -19,7 +19,7 @@
       },
       "channel": "build",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://alternate-entangle-server.onrender.com",
+        "EXPO_PUBLIC_API_URL": "https://alternate-entangle-server.fly.dev",
         "EXPO_PUBLIC_REPLICACHE_KEY": "l19880c269c0d4620a24b3a05218559c3"
       }
     },
@@ -27,7 +27,7 @@
       "developmentClient": true,
       "channel": "development",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://alternate-entangle-server.onrender.com",
+        "EXPO_PUBLIC_API_URL": "https://alternate-entangle-server.fly.dev",
         "EXPO_PUBLIC_REPLICACHE_KEY": "l19880c269c0d4620a24b3a05218559c3"
       }
     },
@@ -35,14 +35,14 @@
       "distribution": "internal",
       "channel": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://alternate-entangle-server.onrender.com",
+        "EXPO_PUBLIC_API_URL": "https://alternate-entangle-server.fly.dev",
         "EXPO_PUBLIC_REPLICACHE_KEY": "l19880c269c0d4620a24b3a05218559c3"
       }
     },
     "production": {
       "channel": "production",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://alternate-entangle-server.onrender.com",
+        "EXPO_PUBLIC_API_URL": "https://alternate-entangle-server.fly.dev",
         "EXPO_PUBLIC_REPLICACHE_KEY": "l19880c269c0d4620a24b3a05218559c3"
       }
     }

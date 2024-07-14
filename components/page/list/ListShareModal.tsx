@@ -9,9 +9,7 @@ import { useShares } from '@/store/share';
 import { useReplicache } from '@/context/ReplicacheContext';
 import uuid from 'react-native-uuid';
 
-import { AnimatedView } from 'react-native-reanimated/lib/typescript/reanimated2/component/View';
-import SlideToDelete from '@/components/custom/SlideToDelete';
-import Animated from 'react-native-reanimated';
+// import SlideToDelete from '@/components/custom/SlideToDelete';
 import ListItemAnimation from '@/components/custom/ListItemAnimation';
 
 type Props = {
@@ -85,7 +83,7 @@ const ListShareModal = ({ isVisible, listID, handleClose }: Props) => {
                 key={share.id}
                 isVisible={share.id === itemToAnimate}
               >
-                <SlideToDelete onDelete={() => handleDeleteShare(share.id)}>
+                {/* <SlideToDelete onDelete={() => handleDeleteShare(share.id)}> */}
                   <View style={styles.shareRow}>
                     <View>
                       <View>
@@ -103,7 +101,7 @@ const ListShareModal = ({ isVisible, listID, handleClose }: Props) => {
                       <Ionicons name="person-remove-outline" size={24} color="black" />
                     </Pressable>
                   </View>
-                </SlideToDelete>
+                {/* </SlideToDelete> */}
               </ListItemAnimation>
             )
           })
@@ -192,7 +190,7 @@ const styles = StyleSheet.create({
   },
   shareText: {
     fontFamily: 'Rubik500',
-    fontSize: 24
+    fontSize: 15
   },
   shareRowContainer: {
     marginBottom: 40

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, View } from 'react-native'
+import { StyleSheet, TextInput, View } from 'react-native'
 import React, { useState } from 'react'
 
 import Modal from 'react-native-modal';
@@ -118,7 +118,7 @@ const TodoModal = ({ isVisible, onSubmit, listID, closeTodoPopup, overrideState,
                             ]}
                         />
                         <Button
-                            text="ADD"
+                            text={context === "CREATE" ? "ADD" : "UPDATE"}
                             ripple
                             onButtonPress={handleSubmit}
                             disabled={fieldsEmpty}

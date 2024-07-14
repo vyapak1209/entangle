@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { LayoutChangeEvent, View, Text } from "react-native";
+import { LayoutChangeEvent, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,

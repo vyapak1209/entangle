@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-
-import EventSource from "react-native-sse";
+import { Pressable, StyleSheet, Text, View, FlatList } from "react-native";
 
 import { useTodos } from "@/store/todo";
-import { Replicache } from "replicache";
-import { M } from "@/mutators";
-import { Todo, TodoUpdate } from "@/entities";
+import { Todo } from "@/entities";
 import uuid from 'react-native-uuid';
 
 import { useReplicache } from "@/context/ReplicacheContext";
@@ -16,6 +12,7 @@ import { Entypo } from "@expo/vector-icons";
 import TodoModal from "./TodoModal";
 import Button from "@/components/atomic/Button";
 import useAppState from "@/hooks/useAppState";
+import { useEventSourcePoke } from "@/hooks/useEventSourcePoke";
 
 type TodoSectionProps = {
     listID: string;
@@ -65,14 +62,6 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
             handleTodoPopup();
         } catch (err) {
             console.log('Error while creating todo', err);
-        }
-    }
-
-    const handleTodoDelete = async (id: string) => {
-        try {
-            await todoAdaptors.deleteTodo(id);
-        } catch (err) {
-            console.log('Error while deleting todo', err);
         }
     }
 
@@ -129,14 +118,13 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
 
 
     const getTodoLists = () => {
-
         if (todos.length === 0) {
             return (
                 <View>
                     <Text
                         style={styles.emptyTitle}
                     >
-                        Create your first list
+                        Create your first todo
                     </Text>
                     <Button
                         text="ADD A TODO"
@@ -146,21 +134,20 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
             )
         }
 
-
         return (
-            <View>
-                {
-                    todos?.length > 0 && todos.map((item, index) => {
-                        return (
-                            <TodoItem
-                                key={`${item.id}`}
-                                todo={item}
-                            />
-                        )
-                    })
-                }
-            </View>
-        )
+            <FlatList
+                data={todos}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item, index }) => (
+                    <TodoItem
+                        key={`${item.id}`}
+                        todo={item}
+                    />
+                )}
+                ListHeaderComponent={getTodoSectionHeader}
+                ListFooterComponent={getTodoInputUI}
+            />
+        );
     }
 
 
@@ -168,29 +155,9 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
         <View
             style={styles.container}
         >
-            {getTodoSectionHeader()}
             {getTodoLists()}
-            {getTodoInputUI()}
         </View>
     );
-}
-
-function useEventSourcePoke(url: string, rep: Replicache<M> | null) {
-    useEffect(() => {
-
-        if (!rep) {
-            return
-        }
-
-        const ev = new EventSource(url);
-        ev.addEventListener("message", async (evt) => {
-            if (evt.type !== "message") return;
-            if (evt.data === "poke") {
-                rep?.pull();
-            }
-        });
-        return () => ev.close();
-    }, [url, rep]);
 }
 
 export default TodoSection;

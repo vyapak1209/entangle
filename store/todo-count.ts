@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { Replicache } from 'replicache';
 import { useEffect } from 'react';
 import { M } from '@/mutators';
-import { Todo, TodoUpdate, allTodos, listTodos, todosByList } from '@/entities';
+import { allTodos, todosByList } from '@/entities';
 
 type TodoState = {
     totalCount: number,

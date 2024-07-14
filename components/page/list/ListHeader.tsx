@@ -1,7 +1,6 @@
-import React, { useRef, useState } from "react";
+import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons';
 import { List } from "@/entities";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
@@ -61,7 +60,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        zIndex: 100
+        zIndex: 100,
+        backgroundColor: Colors.light.background
     },
     listShareIcon: {
         backgroundColor: Colors.light.subtleBackground,

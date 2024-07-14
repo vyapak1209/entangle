@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, withSpring } from "react-native-reanimated";
 
 type ListItemAnimationProps = {

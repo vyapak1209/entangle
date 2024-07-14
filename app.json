@@ -29,7 +29,15 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "flipper": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -40,7 +48,9 @@
       },
       "eas": {
         "projectId": "1627f351-76ca-4437-8a44-12fb4dc0786a"
-      }
+      },
+      "EXPO_PUBLIC_API_URL": "https://alternate-entangle-server.fly.dev",
+      "EXPO_PUBLIC_REPLICACHE_KEY": "l19880c269c0d4620a24b3a05218559c3"
     },
     "runtimeVersion": {
       "policy": "appVersion"

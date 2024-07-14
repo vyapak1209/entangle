@@ -15,7 +15,7 @@ export const mutators = {
     await tx.del(`list/${id}`);
   },
 
-  createShare: async (tx: WriteTransaction, share: Share) => {
+  createShare: async (tx: WriteTransaction, share: Omit<Share, "userID">) => {
     await tx.set(`share/${share.id}`, share);
   },
 

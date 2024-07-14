@@ -10,8 +10,8 @@ import { useReplicache } from "@/context/ReplicacheContext";
 import { useSubscribe } from "@/hooks/useSubscribe";
 import { getRandomColor } from "@/utils/random-color";
 import ListShareButton from "./ListShareButton";
-import Animated, { BounceInRight, BounceInUp, FadeIn, FadeInDown, FadeInLeft, FadeInRight, FadeOut, FadeOutLeft, FadeOutRight } from "react-native-reanimated";
-import SlideToDelete from "@/components/custom/SlideToDelete";
+import Animated, { FadeIn, FadeInDown, FadeOut } from "react-native-reanimated";
+// import SlideToDelete from "@/components/custom/SlideToDelete";
 
 
 type Props = {
@@ -84,9 +84,9 @@ const ListItem = ({ list, deleteList }: Props) => {
 
 
     return (
-        <SlideToDelete
-            onDelete={handleDeleteList}
-        >
+        // <SlideToDelete
+        //     onDelete={handleDeleteList}
+        // >
             <Animated.View
                 entering={FadeInDown}
             >
@@ -114,7 +114,7 @@ const ListItem = ({ list, deleteList }: Props) => {
                     </Pressable>
                 </View>
             </Animated.View>
-        </SlideToDelete>
+        // </SlideToDelete>
     );
 };
 

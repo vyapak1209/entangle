@@ -5,12 +5,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import Toast from 'react-native-toast-message';
-
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { bootCryptoPolyfill } from '@/utils/crypto-polyfill';
 import { ReplicacheProvider } from '@/context/ReplicacheContext';
-import { LogBox } from 'react-native';
+import { LogBox, StatusBar } from 'react-native';
 
 // Ignore log notification by message
 LogBox.ignoreLogs(['Warning: ...']);
@@ -18,7 +16,6 @@ LogBox.ignoreLogs(['Warning: ...']);
 //Ignore all log notifications
 LogBox.ignoreAllLogs();
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 bootCryptoPolyfill();
@@ -34,6 +31,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+      StatusBar.setBarStyle('dark-content');
     }
   }, [loaded]);
 
@@ -50,7 +48,6 @@ export default function RootLayout() {
           <Stack.Screen name="(list)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
-        <Toast />
       </ThemeProvider>
     </ReplicacheProvider>
   );

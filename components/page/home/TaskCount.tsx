@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { useReplicache } from '@/context/ReplicacheContext'
-import { useTodoCount } from '@/store/todo-count';
 import { Colors } from '@/constants/Colors';
 import { allTodos } from '@/entities';
 import { useSubscribe } from '@/hooks/useSubscribe';

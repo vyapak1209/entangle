@@ -1,22 +1,18 @@
-import React, { useEffect, useRef, useState } from "react";
-import { LayoutChangeEvent, Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useRef, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import Entypo from '@expo/vector-icons/Entypo';
-import Octicons from '@expo/vector-icons/Octicons';
 import { AntDesign } from '@expo/vector-icons';
 import { Todo, TodoUpdate } from "@/entities";
 import { Colors } from "@/constants/Colors";
-import { useRouter } from "expo-router";
-import Animated, { FadeInDown, FadeInRight, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { FadeIn, FadeInDown, FadeInRight, FadeOut, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { CollapsableContainer } from "@/components/custom/CollapsableContainer";
 import { getRandomColor } from "@/utils/random-color";
 import TodoModal from "./TodoModal";
 import { useReplicache } from "@/context/ReplicacheContext";
 import { useTodos } from "@/store/todo";
-import { Status } from "@/constants/enums";
 
-import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import IconButton from "@/components/atomic/IconButton";
-import SlideToDelete from "@/components/custom/SlideToDelete";
+// import SlideToDelete from "@/components/custom/SlideToDelete";
 
 
 type Props = {
@@ -78,6 +74,7 @@ const TodoItem = ({ todo }: Props) => {
     const handleTodoDelete = async (force?: boolean) => {
 
         if (!expanded && !force) {
+            handleTodoExpand();
             return;
         }
 
@@ -92,6 +89,7 @@ const TodoItem = ({ todo }: Props) => {
     const handleTodoPopup = () => {
 
         if (!expanded) {
+            handleTodoExpand();
             return;
         }
 
@@ -106,6 +104,11 @@ const TodoItem = ({ todo }: Props) => {
     const additionalDetailsUI = () => {
         return (
             <CollapsableContainer expanded={expanded}>
+                <View style={styles.todoCardTitle}>
+                    <Text style={styles.todoTitle}>
+                        {todo.title}
+                    </Text>
+                </View>
                 <View style={styles.todoDescContainer}>
                     <Text style={styles.todoDescription}>
                         {todo.description}
@@ -116,68 +119,83 @@ const TodoItem = ({ todo }: Props) => {
     }
 
 
-    return (
-        <SlideToDelete
-            onDelete={() => handleTodoDelete(true)}
-        >
-            <Animated.View entering={FadeInDown}>
-                <Pressable onPress={handleTodoClick}>
-                    <View
-                        style={{
-                            ...styles.todoCard,
-                            backgroundColor: colorRef.current
-                        }}>
-                        <View style={styles.todoCardHeader}>
-                            <IconButton
-                                onPressHandle={onTodoStatusChange}
-                            >
-                                <View>
-                                    {
-                                        todo.status === 'DONE' ?
-                                            <AntDesign name="check" size={24} color={Colors.light.text} /> :
-                                            null
-                                    }
-                                </View>
-                            </IconButton>
-                            <View style={styles.todoOptionsDiv}>
-                                <Animated.View style={[styles.todoOptionIcons, animatedOpacityStyle]}>
-                                    <Pressable onPress={handleTodoPopup}>
-                                        <View style={styles.todoStatusIcon}>
-                                            <AntDesign name="edit" size={24} color={Colors.light.text} />
-                                        </View>
-                                    </Pressable>
-                                    <Pressable onPress={() => handleTodoDelete(false)}>
-                                        <View style={styles.todoStatusIcon}>
-                                            <AntDesign name="delete" size={24} color={Colors.light.text} />
-                                        </View>
-                                    </Pressable>
-                                </Animated.View>
-                                <Animated.View
-                                    style={animatedIconStyle}
-                                >
-                                    <Entypo name="chevron-down" size={24} color={Colors.light.text} />
-                                </Animated.View>
-                            </View>
+    const getTodoHeaderUI = () => {
+
+        const isDone = todo.status === 'DONE'
+
+        return (
+            <View style={styles.todoCardHeader}>
+                <View style={styles.todoHeaderTitle}>
+                    <IconButton
+                        onPressHandle={onTodoStatusChange}
+                    >
+                        <View>
+                            {
+                                isDone ?
+                                    <AntDesign name="check" size={24} color={Colors.light.text} /> :
+                                    null
+                            }
                         </View>
-                        <View style={styles.todoCardTitle}>
-                            <Text style={styles.todoTitle}>
+                    </IconButton>
+                    {
+                        !expanded &&
+                        <Animated.View style={[styles.todoCardTitleTop]} entering={FadeIn} exiting={FadeOut}>
+                            <Text style={[styles.todoTitle, isDone ? styles.titleLineThrough : {}]}>
                                 {todo.title}
                             </Text>
-                        </View>
-                        {additionalDetailsUI()}
-                    </View>
-                    <TodoModal
-                        isVisible={showEditPopup}
-                        closeTodoPopup={handleTodoPopup}
-                        listID={todo.listID}
-                        context="UPDATE"
-                        onSubmit={onEditTodoSubmit}
-                        overrideState={todo}
-                        clearOnSubmit={false}
-                    />
-                </Pressable>
-            </Animated.View>
-        </SlideToDelete>
+                        </Animated.View>
+                    }
+                </View>
+                <View style={styles.todoOptionsDiv}>
+                    <Animated.View style={[styles.todoOptionIcons, animatedOpacityStyle]}>
+                        <Pressable onPress={handleTodoPopup}>
+                            <View style={styles.todoStatusIcon}>
+                                <AntDesign name="edit" size={24} color={Colors.light.text} />
+                            </View>
+                        </Pressable>
+                        <Pressable onPress={() => handleTodoDelete(false)}>
+                            <View style={styles.todoStatusIcon}>
+                                <AntDesign name="delete" size={24} color={Colors.light.text} />
+                            </View>
+                        </Pressable>
+                    </Animated.View>
+                    <Animated.View
+                        style={animatedIconStyle}
+                    >
+                        <Entypo name="chevron-down" size={24} color={Colors.light.text} />
+                    </Animated.View>
+                </View>
+            </View>
+        )
+    }
+
+
+    return (
+        // <SlideToDelete
+        //     onDelete={() => handleTodoDelete(true)}
+        // >
+        <Animated.View entering={FadeInDown}>
+            <Pressable onPress={handleTodoClick}>
+                <View
+                    style={{
+                        ...styles.todoCard,
+                        backgroundColor: colorRef.current
+                    }}>
+                    {getTodoHeaderUI()}
+                    {additionalDetailsUI()}
+                </View>
+                <TodoModal
+                    isVisible={showEditPopup}
+                    closeTodoPopup={handleTodoPopup}
+                    listID={todo.listID}
+                    context="UPDATE"
+                    onSubmit={onEditTodoSubmit}
+                    overrideState={todo}
+                    clearOnSubmit={false}
+                />
+            </Pressable>
+        </Animated.View>
+        // </SlideToDelete>
     );
 };
 
@@ -228,11 +246,26 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     todoDescription: {
-        fontSize: 18,
+        fontSize: 20,
         fontFamily: 'Rubik400'
     },
     todoDescContainer: {
         marginTop: 10
+    },
+    todoHeaderTitle: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 20
+    },
+    todoCardTitleTop: {
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 15,
+        alignItems: 'center',
+    },
+    titleLineThrough: {
+        textDecorationLine: 'line-through'
     }
 });
 

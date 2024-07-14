@@ -1,5 +1,5 @@
 import { AppState } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export function useAppState() {
 

@@ -1,10 +1,12 @@
 import { ApiUserPayload, User } from '@/entities/user';
 import { ApiResponse, create } from 'apisauce';
 
-// Define your base URL here
 const apiClient = create({
   baseURL: `${process.env.EXPO_PUBLIC_API_URL}/api/entangle`,
-  timeout: 10000,
+  timeout: 20000,
+  headers: {
+    'Content-Type': 'application/json',
+  }
 });
 
 export type GhConfig = {

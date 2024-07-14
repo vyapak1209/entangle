@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Image, StyleSheet, View } from 'react-native'
 import React, { useState } from 'react'
 import { AntDesign } from '@expo/vector-icons'
 import ListShareModal from './ListShareModal'

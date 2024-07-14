@@ -1,8 +1,7 @@
 import ListHeader from '@/components/page/list/ListHeader';
 import TodoSection from '@/components/page/todo/TodoSection';
 import { Colors } from '@/constants/Colors';
-import { useReplicache } from '@/context/ReplicacheContext';
-import { useLists, useSelectedList } from '@/store/list';
+import { useSelectedList } from '@/store/list';
 import { useLocalSearchParams } from 'expo-router';
 import { View, Text, StyleSheet, SafeAreaView, StatusBar, Platform, ScrollView } from 'react-native';
 

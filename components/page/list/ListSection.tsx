@@ -1,24 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { Entypo } from '@expo/vector-icons';
 
 import uuid from 'react-native-uuid';
-
-import EventSource from "react-native-sse";
 
 import { useLists } from "@/store/list";
 
 import Modal from "react-native-modal";
 
-import { Replicache } from "replicache";
-import { M } from "@/mutators";
 import ListItem from "./ListItem";
 import { useReplicache } from "@/context/ReplicacheContext";
 import { Colors } from "@/constants/Colors";
-import ListItemAnimation from "@/components/custom/ListItemAnimation";
 import { useUser } from "@/store/user";
 import Button from "@/components/atomic/Button";
 import useAppState from "@/hooks/useAppState";
+import { useEventSourcePoke } from "@/hooks/useEventSourcePoke";
 
 
 export function ListSection() {
@@ -99,19 +95,19 @@ export function ListSection() {
         }
 
         return (
-            <View>
-                {
-                    lists?.length > 0 && lists.map((item, index) => {
-                        return (
-                            <ListItem
-                                key={item.id + item.ownerID + index}
-                                list={item}
-                                deleteList={handleDeleteList}
-                            />
-                        )
-                    })
-                }
-            </View>
+            <FlatList
+                data={lists}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item, index }) => (
+                    <ListItem
+                        key={item.id + item.ownerID + index}
+                        list={item}
+                        deleteList={handleDeleteList}
+                    />
+                )}
+                ListHeaderComponent={listSectionHeaderUI}
+                ListFooterComponent={addListModalUI}
+            />
         )
     }
 
@@ -177,34 +173,10 @@ export function ListSection() {
     return (
         <View>
             <View style={styles.listSection}>
-                {listSectionHeaderUI()}
                 {getAllLists()}
             </View>
-            {addListModalUI()}
         </View>
     );
-}
-
-function useEventSourcePoke(url: string, rep: Replicache<M> | null) {
-    useEffect(() => {
-
-        if (!rep) {
-            return
-        }
-
-        const ev = new EventSource(url);
-        ev.addEventListener("message", async (evt) => {
-            if (evt.type !== "message") return;
-            if (evt.data === "poke") {
-                try {
-                    await rep?.pull();
-                } catch (e) {
-                    console.log('error in pull', e);
-                }
-            }
-        });
-        return () => ev.close();
-    }, [url, rep]);
 }
 
 const styles = StyleSheet.create({

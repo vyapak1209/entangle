@@ -1,3 +1,4 @@
+import IconButton from '@/components/atomic/IconButton';
 import TaskCount from '@/components/page/home/TaskCount';
 import { ListSection } from '@/components/page/list/ListSection';
 import { Colors } from '@/constants/Colors';
@@ -5,21 +6,33 @@ import { useUser } from '@/store/user';
 import { getDayOfWeek, getFormattedDate } from '@/utils/date';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, Platform, StatusBar } from 'react-native';
 
+import { Octicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+
 const HomeScreen = () => {
 
     const { user } = useUser();
 
-    console.log(user)
+    const router = useRouter();
+
+    const onSwitchClick = () => {
+        router.push('/')
+    }
 
     const getTopSectionUI = () => {
         return (
             <View style={styles.greetingDiv}>
                 <Text style={styles.greeting}>
-                    Hola,
+                    Hello,
                 </Text>
-                <Text style={styles.username}>
-                    {user?.username}
-                </Text>
+                <View style={styles.usernameContainer}>
+                    <Text style={styles.username}>
+                        {user?.username}
+                    </Text>
+                    <IconButton onPressHandle={onSwitchClick}>
+                        <Octicons name="arrow-switch" size={24} color={Colors.light.text} />
+                    </IconButton>
+                </View>
             </View>
         )
     }
@@ -81,7 +94,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Rubik400'
     },
     username: {
-        fontSize: 60,
+        fontSize: 55,
         color: Colors.light.text,
         fontFamily: 'Rubik500',
         lineHeight: 70
@@ -125,6 +138,12 @@ const styles = StyleSheet.create({
     },
     greetingDiv: {
         marginTop: 20
+    },
+    usernameContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
     }
 });
 

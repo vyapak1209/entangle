@@ -1,6 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import React, { ReactNode } from 'react';
-import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 
 type ButtonProps = {

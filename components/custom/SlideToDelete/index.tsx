@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Gesture, GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 
 type SlideToDeleteProps = {
     children: React.ReactNode;
@@ -42,11 +42,11 @@ const SlideToDelete = ({ children, onDelete }: SlideToDeleteProps) => {
         <GestureHandlerRootView
             style={{ maxHeight: 'auto' }}
         >
-            <GestureDetector gesture={pan}>
+            <PanGestureHandler>
                 <Animated.View style={[animatedStyles]}>
                     {children}
                 </Animated.View>
-            </GestureDetector>
+            </PanGestureHandler>
         </GestureHandlerRootView>
     );
 };

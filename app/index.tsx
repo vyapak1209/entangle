@@ -5,13 +5,14 @@ import { useUser } from '@/store/user';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Pressable, ToastAndroid, ActivityIndicator } from 'react-native';
 
-import Toast from 'react-native-toast-message';
+import * as Clipboard from 'expo-clipboard';
+
+import { FontAwesome5 } from '@expo/vector-icons';
 
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { LoginUserResponse } from '@/api';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 const AuthPage = () => {
   const [authState, setAuthState] = useState<'signup' | 'login'>('login');
@@ -22,7 +23,7 @@ const AuthPage = () => {
 
   const [checkGithub, setCheckGithub] = useState(false);
 
-  const { user, login, signUp, logout } = useUser();
+  const { user, login, signUp, logout, loading, error } = useUser();
 
   const router = useRouter();
 
@@ -65,12 +66,7 @@ const AuthPage = () => {
     } catch (err: any) {
       console.log('Error while logging in AuthPage', err);
 
-      Toast.show({
-        text1Style: {fontSize: 18, fontFamily: 'Rubik400'},
-        swipeable: true,
-        type: 'error',
-        text1: err.message as string ?? 'Something went wrong!'
-      });
+      ToastAndroid.show(err.message as string ?? 'Something went wrong!', ToastAndroid.SHORT);
     }
   };
 
@@ -78,6 +74,11 @@ const AuthPage = () => {
   const switchAuthState = () => {
     setAuthState(prev => prev === 'login' ? 'signup' : 'login')
   }
+
+
+  const copyToCollabIDClipboard = async () => {
+    await Clipboard.setStringAsync(user?.userID as string);
+  };
 
 
   const handleSignUp = async () => {
@@ -94,12 +95,7 @@ const AuthPage = () => {
     } catch (err: any) {
       console.log('Error while signing in AuthPage', err);
 
-      Toast.show({
-        text1Style: {fontSize: 18, fontFamily: 'Rubik400'},
-        swipeable: true,
-        type: 'error',
-        text1: err.message as string ?? 'Something went wrong!'
-      });
+      ToastAndroid.show(err.message as string ?? 'Something went wrong!', ToastAndroid.SHORT);
     }
   };
 
@@ -116,7 +112,7 @@ const AuthPage = () => {
             style={styles.input}
             value={username}
             onChangeText={setUsername}
-            placeholder={ checkGithub ? "GitHub Username" : "Username" }
+            placeholder={checkGithub ? "GitHub Username" : "Username"}
             placeholderTextColor={Colors.light.placeholder}
           />
           <TextInput
@@ -125,7 +121,7 @@ const AuthPage = () => {
             onChangeText={setPasskey}
             placeholder="Pass Key"
             maxLength={4}
-            keyboardType='numeric'
+            inputMode='numeric'
             secureTextEntry={true}
             placeholderTextColor={Colors.light.placeholder}
           />
@@ -157,80 +153,117 @@ const AuthPage = () => {
     </>
   );
 
+
+  const renderActions = () => {
+    return (
+      <View
+        style={styles.loginContainer}
+      >
+        {
+          authState === 'signup' &&
+          <BouncyCheckbox
+            size={25}
+            fillColor={Colors.light.subtleBackground}
+            unFillColor={Colors.light.background}
+            text="Connect to GitHub"
+            iconStyle={{ borderColor: Colors.light.text }}
+            style={{ marginBottom: 20 }}
+            innerIconStyle={{ borderWidth: 2 }}
+            textStyle={{ fontFamily: "Rubik500", textDecorationLine: "none", fontSize: 20 }}
+            isChecked={checkGithub}
+            onPress={(isChecked: boolean) => { setCheckGithub(isChecked) }}
+          />
+        }
+        <View style={styles.authSwitcher}>
+          <Pressable onPress={switchAuthState}>
+            <Text style={styles.authLabel}>
+              <Text style={styles.authText}>
+                {authState === 'login' ? 'New user?' : 'Already a user?'}
+              </Text>
+              &nbsp;&nbsp;
+              {authState === 'login' ? 'SIGN UP' : 'LOGIN'}
+            </Text>
+          </Pressable>
+          <IconButton
+            onPressHandle={handleAuthClick}
+            disabled={disableLogin || disableSignUp}
+            size={65}
+          >
+            {
+              loading ?
+                <ActivityIndicator size="small" color={Colors.light.text} /> :
+                <AntDesign name="right" size={24} color={Colors.light.text} />
+            }
+          </IconButton>
+        </View>
+      </View>
+    )
+  }
+
+  const renderLoggedInActions = () => {
+    return (
+      <View style={styles.buttonsContainer}>
+        {
+          user ?
+            <View style={styles.loggedInButtons}>
+              <Button text="LOGOUT" onButtonPress={logout} type='secondary' />
+            </View> :
+            null
+        }
+        <IconButton
+          onPressHandle={takeMeHome}
+          disabled={disableLogin}
+          size={65}
+        >
+          <AntDesign name="right" size={24} color={Colors.light.text} />
+        </IconButton>
+      </View>
+    )
+  }
+
+  const renderLogo = () => {
+    return (
+      <Text style={styles.logo}>
+        entangled
+        <Entypo name="link" size={40} color={Colors.light.text} />
+      </Text>
+    )
+  }
+
+  const renderUserDeetsUI = () => {
+    return (
+      <View style={styles.labelContainer}>
+        <Text style={styles.label}>Username: <Text style={styles.labelItem}>{user?.username ?? ''}</Text></Text>
+        <Text style={styles.label}>Collaborator ID: <Text style={styles.labelItem}>{user?.userID ?? ''}</Text>
+          &nbsp;&nbsp;<FontAwesome5 name="copy" size={26} color={Colors.light.text} onPress={copyToCollabIDClipboard} />
+        </Text>
+      </View>
+    )
+  }
+
+  const renderAuthState = () => {
+    return (
+      <View style={styles.authStateContainer}>
+        <Text style={styles.authStateText}>
+          { authState === 'login' ? "LOGIN" : "SIGN UP" }
+        </Text>
+      </View>
+    )
+  }
+
   return (
     <View style={styles.container}>
+      {renderLogo()}
+      {renderAuthState()}
       {user ? (
         <View>
-          <Text style={styles.logo}>
-            entangled
-            <Entypo name="link" size={40} color={Colors.light.text} />
-          </Text>
-          <View style={styles.labelContainer}>
-            <Text style={styles.label}>Username: <Text style={styles.labelItem}>{user?.username ?? ''}</Text></Text>
-            <Text style={styles.label}>Collaborator ID: <Text style={styles.labelItem}>{user?.userID ?? ''}</Text></Text>
-          </View>
-
-          <View style={styles.buttonsContainer}>
-            {
-              user ?
-                <View style={styles.loggedInButtons}>
-                  <Button text="LOGOUT" onButtonPress={logout} type='secondary' />
-                </View> :
-                null
-            }
-            <IconButton
-              onPressHandle={takeMeHome}
-              disabled={disableLogin}
-              size={65}
-            >
-              <AntDesign name="right" size={24} color="black" />
-            </IconButton>
-          </View>
+          {renderUserDeetsUI()}
+          {renderLoggedInActions()}
         </View>
       ) : (
         <View>
-          <Text style={styles.logo}>
-            entangled
-            <Entypo name="link" size={40} color={Colors.light.text} />
-          </Text>
           {renderInputFields()}
-          <View
-            style={styles.loginContainer}
-          >
-            {
-              authState === 'signup' &&
-              <BouncyCheckbox
-                size={25}
-                fillColor={Colors.light.subtleBackground}
-                unFillColor={Colors.light.background}
-                text="Connect to GitHub"
-                iconStyle={{ borderColor: Colors.light.text }}
-                style={{ marginBottom: 20 }}
-                innerIconStyle={{ borderWidth: 2 }}
-                textStyle={{ fontFamily: "Rubik500", textDecorationLine: "none", fontSize: 20 }}
-                isChecked={checkGithub}
-                onPress={(isChecked: boolean) => { setCheckGithub(isChecked) }}
-              />
-            }
-            <View style={styles.authSwitcher}>
-              <Pressable onPress={switchAuthState}>
-                <Text style={styles.authLabel}>
-                  <Text style={styles.authText}>
-                    {authState === 'login' ? 'New user?' : 'Already a user?'}
-                  </Text>
-                  &nbsp;&nbsp;
-                  {authState === 'login' ? 'SIGN UP' : 'LOGIN'}
-                </Text>
-              </Pressable>
-              <IconButton
-                onPressHandle={handleAuthClick}
-                disabled={disableLogin || disableSignUp}
-                size={65}
-              >
-                <AntDesign name="right" size={24} color="black" />
-              </IconButton>
-            </View>
-          </View>
+          {renderActions()}
         </View>
       )}
     </View>
@@ -243,16 +276,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 16,
     backgroundColor: 'white',
-  },
-  card: {
-    backgroundColor: Colors.light.background,
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
   },
   label: {
     fontSize: 22,
@@ -295,9 +318,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     fontFamily: 'Rubik600',
-    fontSize: 40,
+    fontSize: 45,
     alignSelf: 'center',
-    marginBottom: 50,
+    marginBottom: 60,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
@@ -320,6 +343,14 @@ const styles = StyleSheet.create({
   authText: {
     fontSize: 18,
     fontFamily: 'Rubik400',
+  },
+  authStateContainer: {
+    marginBottom: 30,
+  },
+  authStateText: {
+    fontSize: 35,
+    fontFamily: 'Rubik500',
+    textAlign: 'center'
   }
 });
 
