@@ -38,8 +38,7 @@ export const ReplicacheProvider = ({ children }: { children: ReactNode }) => {
       mutators,
       experimentalCreateKVStore: createReplicacheExpoSQLiteExperimentalCreateKVStore,
       pushURL: `${process.env.EXPO_PUBLIC_API_URL}/api/replicache/push?userID=${spaceID}`,
-      pullURL: `${process.env.EXPO_PUBLIC_API_URL}/api/replicache/pull?userID=${spaceID}`,
-      pullInterval: 10000
+      pullURL: `${process.env.EXPO_PUBLIC_API_URL}/api/replicache/pull?userID=${spaceID}`
     });
 
     setReplicache(r);

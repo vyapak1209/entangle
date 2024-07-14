@@ -30,8 +30,7 @@ export function ListSection() {
     useEventSourcePoke(`${process.env.EXPO_PUBLIC_API_URL}/api/replicache/poke?channel=user/${user?.userID}`, replicache);
 
     useEffect(() => {
-        if (replicache && appStateVisible) {
-            console.log('Force pulled')
+        if (replicache && appStateVisible === "active") {
             replicache.pull();
         }
     }, [appStateVisible]);

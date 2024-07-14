@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Pressable, StyleSheet, Text, TextInput, View, FlatList } from 'react-native'
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 
@@ -9,8 +9,8 @@ import { useShares } from '@/store/share';
 import { useReplicache } from '@/context/ReplicacheContext';
 import uuid from 'react-native-uuid';
 
-// import SlideToDelete from '@/components/custom/SlideToDelete';
 import ListItemAnimation from '@/components/custom/ListItemAnimation';
+import { Share } from '@/entities';
 
 type Props = {
   isVisible: boolean;
@@ -67,49 +67,25 @@ const ListShareModal = ({ isVisible, listID, handleClose }: Props) => {
     }
   }
 
-
-  const getAllSharesUI = () => {
-
-    if (shares.length === 0) {
-      return null;
-    }
-
-    return (
-      <View style={styles.shareRowContainer}>
-        {
-          shares?.length > 0 && shares.map(share => {
-            return (
-              <ListItemAnimation
-                key={share.id}
-                isVisible={share.id === itemToAnimate}
-              >
-                {/* <SlideToDelete onDelete={() => handleDeleteShare(share.id)}> */}
-                  <View style={styles.shareRow}>
-                    <View>
-                      <View>
-
-                      </View>
-                      <View>
-                        <Text style={styles.shareText}>
-                          {share.userID}
-                        </Text>
-                      </View>
-                    </View>
-                    <Pressable
-                      onPress={() => handleDeleteShare(share.id)}
-                    >
-                      <Ionicons name="person-remove-outline" size={24} color="black" />
-                    </Pressable>
-                  </View>
-                {/* </SlideToDelete> */}
-              </ListItemAnimation>
-            )
-          })
-        }
+  const renderShareItem = ({ item }: {item: Share}) => (
+    <ListItemAnimation
+      key={item.id}
+      isVisible={item.id === itemToAnimate}
+    >
+      <View style={styles.shareRow}>
+        <View>
+          <Text style={styles.shareText}>
+            {item.userID}
+          </Text>
+        </View>
+        <Pressable
+          onPress={() => handleDeleteShare(item.id)}
+        >
+          <Ionicons name="person-remove-outline" size={24} color="black" />
+        </Pressable>
       </View>
-    )
-  }
-
+    </ListItemAnimation>
+  )
 
   return (
     <View>
@@ -124,7 +100,14 @@ const ListShareModal = ({ isVisible, listID, handleClose }: Props) => {
         }}
       >
         <View style={styles.addSharePopup}>
-          {getAllSharesUI()}
+          {shares.length > 0 && (
+            <FlatList
+              data={shares}
+              keyExtractor={(item) => item.id}
+              renderItem={renderShareItem}
+              contentContainerStyle={styles.shareRowContainer}
+            />
+          )}
           <View style={styles.shareForm}>
             <TextInput
               editable
@@ -163,7 +146,8 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    gap: 20
+    gap: 20,
+    width: '100%',
   },
   addSharePopup: {
     backgroundColor: Colors.light.background,
@@ -193,6 +177,7 @@ const styles = StyleSheet.create({
     fontSize: 15
   },
   shareRowContainer: {
-    marginBottom: 40
+    marginBottom: 40,
+    width: '100%',
   }
 })

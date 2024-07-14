@@ -18,19 +18,11 @@ type TodoSectionProps = {
     listID: string;
 }
 
-const initialTodoState = {
-    title: '',
-    listID: '',
-    id: '',
-    description: '',
-    status: 'TODO',
-    priority: 'LOW'
-}
-
 const TodoSection = ({ listID }: TodoSectionProps) => {
 
     const { replicache } = useReplicache();
     const appStateVisible = useAppState();
+    
     const { todos, todoAdaptors } = useTodos(replicache, listID);
     todos?.sort((t1: Todo, t2: Todo) => t1?.sort - t2?.sort);
 
@@ -40,7 +32,7 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
     useEventSourcePoke(`${process.env.EXPO_PUBLIC_API_URL}/api/replicache/poke?channel=list/${listID}`, replicache);
 
     useEffect(() => {
-        if (replicache && appStateVisible) {
+        if (replicache && appStateVisible === "active") {
             replicache.pull();
         }
     }, [appStateVisible])
