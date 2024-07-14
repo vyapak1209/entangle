@@ -4,7 +4,7 @@ import { createReplicacheExpoSQLiteExperimentalCreateKVStore } from "@react-nati
 import { M, mutators } from "@/mutators";
 import { useUser } from '@/store/user';
 
-interface ReplicacheContextType {
+type ReplicacheContextType = {
   replicache: Replicache<M> | null;
 }
 
