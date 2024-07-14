@@ -15,12 +15,15 @@ import { useUser } from "@/store/user";
 import Button from "@/components/atomic/Button";
 import useAppState from "@/hooks/useAppState";
 import { useEventSourcePoke } from "@/hooks/useEventSourcePoke";
+import IconButton from "@/components/atomic/IconButton";
 
 
 export function ListSection() {
 
     const [listName, setListName] = useState('');
     const [showListNamePopup, setShowListNamePopup] = useState(false);
+
+    console.log(showListNamePopup)
 
     const { user } = useUser();
     const { replicache } = useReplicache();
@@ -71,6 +74,7 @@ export function ListSection() {
 
 
     const handleListNamePopup = () => {
+        console.log('called')
         setShowListNamePopup(prev => !prev)
     }
 
@@ -104,8 +108,6 @@ export function ListSection() {
                         deleteList={handleDeleteList}
                     />
                 )}
-                ListHeaderComponent={listSectionHeaderUI}
-                ListFooterComponent={addListModalUI}
             />
         )
     }
@@ -117,13 +119,11 @@ export function ListSection() {
                 <Text style={styles.allListsHeading}>
                     All Lists ({lists.length})
                 </Text>
-                <Pressable
-                    onPress={handleListNamePopup}
+                <IconButton
+                    onPressHandle={handleListNamePopup}
                 >
-                    <View style={styles.addListIcon}>
-                        <Entypo name="plus" size={24} color={Colors.light.text} />
-                    </View>
-                </Pressable>
+                    <Entypo name="plus" size={24} color={Colors.light.text} />
+                </IconButton>
             </View>
         )
     }
@@ -172,7 +172,9 @@ export function ListSection() {
     return (
         <View>
             <View style={styles.listSection}>
+                {listSectionHeaderUI()}
                 {getAllLists()}
+                {addListModalUI()}
             </View>
         </View>
     );

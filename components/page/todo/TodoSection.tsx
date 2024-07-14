@@ -136,8 +136,6 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
                         todo={item}
                     />
                 )}
-                ListHeaderComponent={getTodoSectionHeader}
-                ListFooterComponent={getTodoInputUI}
             />
         );
     }
@@ -147,7 +145,9 @@ const TodoSection = ({ listID }: TodoSectionProps) => {
         <View
             style={styles.container}
         >
+            {getTodoSectionHeader()}
             {getTodoLists()}
+            {getTodoInputUI()}
         </View>
     );
 }

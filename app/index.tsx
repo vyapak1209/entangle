@@ -254,7 +254,7 @@ const AuthPage = () => {
   return (
     <View style={styles.container}>
       {renderLogo()}
-      {renderAuthState()}
+      {!user && renderAuthState()}
       {user ? (
         <View>
           {renderUserDeetsUI()}

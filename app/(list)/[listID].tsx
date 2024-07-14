@@ -3,7 +3,7 @@ import TodoSection from '@/components/page/todo/TodoSection';
 import { Colors } from '@/constants/Colors';
 import { useSelectedList } from '@/store/list';
 import { useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, Platform, ScrollView, FlatList } from 'react-native';
 
 
 export default function List() {
@@ -18,13 +18,15 @@ export default function List() {
                 <ListHeader
                     list={selectedList}
                 />
-                <ScrollView
+                <FlatList
                     showsVerticalScrollIndicator={false}
-                >
-                    <TodoSection
-                        listID={listID as string}
-                    />
-                </ScrollView>
+                    data={[{}]}
+                    renderItem={() => <>
+                        <TodoSection
+                            listID={listID as string}
+                        />
+                    </>}
+                />
             </View>
         </SafeAreaView>
     );

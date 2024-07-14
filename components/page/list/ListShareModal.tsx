@@ -136,7 +136,7 @@ export default ListShareModal
 
 const styles = StyleSheet.create({
   shareTitleInput: {
-    fontSize: 28,
+    fontSize: 19,
     fontFamily: 'Rubik500',
     color: Colors.light.text,
     minWidth: '100%',

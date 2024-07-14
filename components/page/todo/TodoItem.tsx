@@ -128,11 +128,12 @@ const TodoItem = ({ todo }: Props) => {
                 <View style={styles.todoHeaderTitle}>
                     <IconButton
                         onPressHandle={onTodoStatusChange}
+                        size={40}
                     >
                         <View>
                             {
                                 isDone ?
-                                    <AntDesign name="check" size={24} color={Colors.light.text} /> :
+                                    <AntDesign name="check" size={20} color={Colors.light.text} /> :
                                     null
                             }
                         </View>
@@ -208,8 +209,9 @@ const styles = StyleSheet.create({
         marginVertical: 6
     },
     todoTitle: {
-        fontSize: 24,
+        fontSize: 22,
         fontFamily: 'Rubik500',
+        width: '80%'
     },
     todoStatusIcon: {
         backgroundColor: Colors.light.subtleBackground,
@@ -230,7 +232,9 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10
+        gap: 10,
+        position: 'absolute',
+        right: 5
     },
     todoOptionIcons: {
         display: 'flex',

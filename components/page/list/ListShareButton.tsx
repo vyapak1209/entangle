@@ -14,12 +14,12 @@ type Props = {
 }
 
 const AVATARS = [
-    require('@/assets/images/avatar/avatar0.png'),
-    require('@/assets/images/avatar/avatar1.png'),
     require('@/assets/images/avatar/avatar2.png'),
-    require('@/assets/images/avatar/avatar3.png'),
     require('@/assets/images/avatar/avatar4.png'),
     require('@/assets/images/avatar/avatar5.png'),
+    require('@/assets/images/avatar/avatar3.png'),
+    require('@/assets/images/avatar/avatar1.png'),
+    require('@/assets/images/avatar/avatar0.png'),
 ];
 
 const ListShareButton = ({ listID, showCollaborators = true }: Props) => {
@@ -46,7 +46,9 @@ const ListShareButton = ({ listID, showCollaborators = true }: Props) => {
                     shares.map((share, index) => {
                         const img = AVATARS[index]
                         return ( 
-                            <View style={styles.overlappingIcons}>
+                            <View 
+                            key={share.id}
+                            style={styles.overlappingIcons}>
                                 <Image
                                     source={img}
                                     resizeMode='center'

@@ -4,7 +4,7 @@ import { ListSection } from '@/components/page/list/ListSection';
 import { Colors } from '@/constants/Colors';
 import { useUser } from '@/store/user';
 import { getDayOfWeek, getFormattedDate } from '@/utils/date';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, Platform, StatusBar, FlatList } from 'react-native';
 
 import { Octicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -64,15 +64,17 @@ const HomeScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView
+            <FlatList
                 showsVerticalScrollIndicator={false}
-            >
-            <View>
-                {getTopSectionUI()}
-                {getStatusSectionUI()}
-                {getListSectionUI()}
-            </View>
-            </ScrollView>
+                data={[{}]}
+                renderItem={() => <>
+                    <View>
+                        {getTopSectionUI()}
+                        {getStatusSectionUI()}
+                        {getListSectionUI()}
+                    </View>
+                </>}
+            />
         </SafeAreaView>
     );
 }
